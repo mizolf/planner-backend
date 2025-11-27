@@ -21,17 +21,20 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthenticationService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
-            EmailService emailService
+            EmailService emailService,
+            TokenBlacklistService tokenBlacklistService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.emailService = emailService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     public User signUp(RegisterUserDTO input){
@@ -70,6 +73,10 @@ public class AuthenticationService {
         } catch (MessagingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void logout(String token) {
+        tokenBlacklistService.blacklist(token);
     }
 
     public User authenticate(LoginUserDTO input){

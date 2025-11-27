@@ -8,10 +8,7 @@ import com.mcesnik.planner_backend.responses.LoginResponse;
 import com.mcesnik.planner_backend.service.AuthenticationService;
 import com.mcesnik.planner_backend.service.JwtService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/auth")
 @RestController
@@ -56,5 +53,14 @@ public class AuthenticationController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(
+            @RequestHeader("Authorization") String authHeader
+    ){
+        String token = authHeader.substring(7);
+        authenticationService.logout(token);
+        return ResponseEntity.ok("Logged out successfully");
     }
 }

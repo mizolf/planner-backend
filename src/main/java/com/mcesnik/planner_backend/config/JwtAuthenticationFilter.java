@@ -1,6 +1,7 @@
 package com.mcesnik.planner_backend.config;
 
 import com.mcesnik.planner_backend.service.JwtService;
+import com.mcesnik.planner_backend.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,11 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtService jwtService, UserDetailsService userDetailsService, TokenBlacklistService tokenBlacklistService) {
         this.handlerExceptionResolver = handlerExceptionResolver;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Override
@@ -44,6 +47,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try{
             final String jwt = authHeader.substring(7);
+
+            if (tokenBlacklistService.isBlacklisted(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             final String userEmail = jwtService.extractUsername(jwt);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
