@@ -2,7 +2,12 @@ package com.mcesnik.planner_backend.service;
 
 import com.mcesnik.planner_backend.DTO.LoginUserDTO;
 import com.mcesnik.planner_backend.DTO.RegisterUserDTO;
+import com.mcesnik.planner_backend.DTO.ResendVerificationDTO;
 import com.mcesnik.planner_backend.DTO.VerifiedUserDTO;
+import com.mcesnik.planner_backend.exception.AccountAlreadyVerifiedException;
+import com.mcesnik.planner_backend.exception.AccountNotVerifiedException;
+import com.mcesnik.planner_backend.exception.InvalidVerificationCodeException;
+import com.mcesnik.planner_backend.exception.ResourceNotFoundException;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.repository.UserRepository;
 import jakarta.mail.MessagingException;
@@ -12,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -37,13 +41,65 @@ public class AuthenticationService {
         this.tokenBlacklistService = tokenBlacklistService;
     }
 
-    public User signUp(RegisterUserDTO input){
-        User user = new User(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
+    public User signUp(RegisterUserDTO input) {
+        User user = new User(input.getFullName(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(30));
         user.setEnabled(false);
         sendVerificationEmail(user);
         return userRepository.save(user);
+    }
+
+    public User authenticate(LoginUserDTO input) {
+        User user = userRepository.findByEmail(input.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!user.isEnabled()) {
+            throw new AccountNotVerifiedException("Account not verified");
+        }
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        input.getEmail(),
+                        input.getPassword()
+                )
+        );
+        return user;
+    }
+
+    public void verifyUser(VerifiedUserDTO input) {
+        User user = userRepository.findByEmail(input.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new InvalidVerificationCodeException("Verification code has expired");
+        }
+        if (!user.getVerificationCode().equals(input.getVerificationCode())) {
+            throw new InvalidVerificationCodeException("Invalid verification code");
+        }
+
+        user.setEnabled(true);
+        user.setVerificationCode(null);
+        user.setVerificationCodeExpiresAt(null);
+        userRepository.save(user);
+    }
+
+    public void resendVerificationCode(ResendVerificationDTO input) {
+        User user = userRepository.findByEmail(input.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.isEnabled()) {
+            throw new AccountAlreadyVerifiedException("Account is already verified");
+        }
+
+        user.setVerificationCode(generateVerificationCode());
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
+        sendVerificationEmail(user);
+        userRepository.save(user);
+    }
+
+    public void logout(String token) {
+        tokenBlacklistService.blacklist(token);
     }
 
     private String generateVerificationCode() {
@@ -72,63 +128,6 @@ public class AuthenticationService {
             emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
         } catch (MessagingException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void logout(String token) {
-        tokenBlacklistService.blacklist(token);
-    }
-
-    public User authenticate(LoginUserDTO input){
-        User user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow(()-> new RuntimeException("User not found"));
-
-        if(!user.isEnabled()){
-            throw new RuntimeException("Account not verified");
-        }
-
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()
-                )
-        );
-        return user;
-    }
-
-    public void verifyUser(VerifiedUserDTO input) {
-        Optional<User> optionalUser = userRepository.findByEmail(input.getEmail());
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("Verification code has expired");
-            }
-            if (user.getVerificationCode().equals(input.getVerificationCode())) {
-                user.setEnabled(true);
-                user.setVerificationCode(null);
-                user.setVerificationCodeExpiresAt(null);
-                userRepository.save(user);
-            } else {
-                throw new RuntimeException("Invalid verification code");
-            }
-        } else {
-            throw new RuntimeException("User not found");
-        }
-    }
-
-    public void resendVerificationCode(String email) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (user.isEnabled()) {
-                throw new RuntimeException("Account is already verified");
-            }
-            user.setVerificationCode(generateVerificationCode());
-            user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
-            sendVerificationEmail(user);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("User not found");
         }
     }
 }

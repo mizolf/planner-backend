@@ -12,9 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TripMemberResponse {
     private Long userId;
-    private String username;
+    private String fullName;
     private String email;
     private TripRole role;
     private LocalDateTime joinedAt;
 }
-

@@ -10,7 +10,7 @@ public class UserTripMapper {
     public TripMemberResponse toResponse(UserTrip userTrip) {
         return TripMemberResponse.builder()
                 .userId(userTrip.getUser().getId())
-                .username(userTrip.getUser().getUsername())
+                .fullName(userTrip.getUser().getFullName())
                 .email(userTrip.getUser().getEmail())
                 .role(userTrip.getRole())
                 .joinedAt(userTrip.getJoinedAt())

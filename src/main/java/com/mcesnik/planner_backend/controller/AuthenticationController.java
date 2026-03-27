@@ -2,11 +2,14 @@ package com.mcesnik.planner_backend.controller;
 
 import com.mcesnik.planner_backend.DTO.LoginUserDTO;
 import com.mcesnik.planner_backend.DTO.RegisterUserDTO;
+import com.mcesnik.planner_backend.DTO.ResendVerificationDTO;
 import com.mcesnik.planner_backend.DTO.VerifiedUserDTO;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.responses.LoginResponse;
+import com.mcesnik.planner_backend.responses.RegisterResponseDTO;
 import com.mcesnik.planner_backend.service.AuthenticationService;
 import com.mcesnik.planner_backend.service.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,13 +25,13 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDTO registerUserDTO){
+    public ResponseEntity<RegisterResponseDTO> register(@Valid @RequestBody RegisterUserDTO registerUserDTO) {
         User registeredUser = authenticationService.signUp(registerUserDTO);
-        return ResponseEntity.ok(registeredUser);
+        return ResponseEntity.ok(new RegisterResponseDTO(registeredUser));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginUserDTO loginUserDTO){
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginUserDTO loginUserDTO) {
         User authenticatedUser = authenticationService.authenticate(loginUserDTO);
         String jwtToken = jwtService.generateToken(authenticatedUser);
         LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
@@ -36,29 +39,19 @@ public class AuthenticationController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verify(@RequestBody VerifiedUserDTO verifiedUserDTO){
-        try{
-            authenticationService.verifyUser(verifiedUserDTO);
-            return ResponseEntity.ok("Account verified successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<String> verify(@Valid @RequestBody VerifiedUserDTO verifiedUserDTO) {
+        authenticationService.verifyUser(verifiedUserDTO);
+        return ResponseEntity.ok("Account verified successfully");
     }
 
     @PostMapping("/resend")
-    public ResponseEntity<?> resendVerificationCode(@RequestBody String email){
-        try{
-            authenticationService.resendVerificationCode(email);
-            return ResponseEntity.ok("Verification code sent");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<String> resendVerificationCode(@Valid @RequestBody ResendVerificationDTO resendVerificationDTO) {
+        authenticationService.resendVerificationCode(resendVerificationDTO);
+        return ResponseEntity.ok("Verification code sent");
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(
-            @RequestHeader("Authorization") String authHeader
-    ){
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
         authenticationService.logout(token);
         return ResponseEntity.ok("Logged out successfully");

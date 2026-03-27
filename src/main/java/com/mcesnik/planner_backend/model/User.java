@@ -21,8 +21,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false)
+    private String fullName;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -41,8 +41,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserTrip> userTrips = new ArrayList<>();
 
-    public User(String username, String email, String password) {
-        this.username = username;
+    public User(String fullName, String email, String password) {
+        this.fullName = fullName;
         this.email = email;
         this.password = password;
     }
@@ -50,28 +50,37 @@ public class User implements UserDetails {
     public User() {
     }
 
+    /**
+     * Spring Security UserDetails contract — email is the auth principal
+     * in this application, so getUsername() returns email.
+     */
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities(){
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
     @Override
-    public boolean isAccountNonExpired(){
+    public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked(){
+    public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired(){
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
-    public boolean isEnabled(){
+    public boolean isEnabled() {
         return enabled;
     }
 }
