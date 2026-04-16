@@ -10,6 +10,7 @@ import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.repository.ActivityRepository;
 import com.mcesnik.planner_backend.repository.TripDayRepository;
 import com.mcesnik.planner_backend.repository.TripRepository;
+import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
 import com.mcesnik.planner_backend.responses.TripDayResponse;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,12 @@ public class TripDayService {
         var day = tripDayMapper.toEntity(request);
         day.setTrip(trip);
 
+        if (day.getDate() != null && trip.getStartDate() != null && trip.getEndDate() != null) {
+            if (day.getDate().isBefore(trip.getStartDate()) || day.getDate().isAfter(trip.getEndDate())) {
+                throw new InvalidDateRangeException("Day date must be within the trip date range");
+            }
+        }
+
         day = tripDayRepository.save(day);
 
         return tripDayMapper.toResponse(day, List.of());
@@ -51,6 +58,14 @@ public class TripDayService {
 
         var day = findDayOrThrow(dayId, tripId);
         tripDayMapper.updateEntity(day, dto);
+
+        Trip trip = day.getTrip();
+        if (day.getDate() != null && trip.getStartDate() != null && trip.getEndDate() != null) {
+            if (day.getDate().isBefore(trip.getStartDate()) || day.getDate().isAfter(trip.getEndDate())) {
+                throw new InvalidDateRangeException("Day date must be within the trip date range");
+            }
+        }
+
         day = tripDayRepository.save(day);
 
         var activities = activityRepository.findByTripDayIdOrderByStartTimeAsc(dayId).stream()

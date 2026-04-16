@@ -5,6 +5,7 @@ import com.mcesnik.planner_backend.DTO.UpdateTripMemberDTO;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.responses.TripMemberResponse;
 import com.mcesnik.planner_backend.service.TripMemberService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,12 +22,12 @@ public class TripMemberController {
     }
 
     @PostMapping
-    public ResponseEntity<TripMemberResponse> addMember(@PathVariable Long tripId, @RequestBody AddTripMemberDTO dto) {
+    public ResponseEntity<TripMemberResponse> addMember(@PathVariable Long tripId, @Valid @RequestBody AddTripMemberDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tripMemberService.addMember(tripId, dto, getCurrentUser()));
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<TripMemberResponse> updateMemberRole(@PathVariable Long tripId, @PathVariable Long userId, @RequestBody UpdateTripMemberDTO dto) {
+    public ResponseEntity<TripMemberResponse> updateMemberRole(@PathVariable Long tripId, @PathVariable Long userId, @Valid @RequestBody UpdateTripMemberDTO dto) {
         return ResponseEntity.ok(tripMemberService.updateMemberRole(tripId, userId, dto, getCurrentUser()));
     }
 

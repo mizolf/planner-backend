@@ -5,6 +5,7 @@ import com.mcesnik.planner_backend.DTO.UpdateActivityDTO;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.responses.ActivityResponse;
 import com.mcesnik.planner_backend.service.ActivityService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,12 +22,12 @@ public class ActivityController {
     }
 
     @PostMapping
-    public ResponseEntity<ActivityResponse> addActivity(@PathVariable Long tripId, @PathVariable Long dayId, @RequestBody CreateActivityDTO dto) {
+    public ResponseEntity<ActivityResponse> addActivity(@PathVariable Long tripId, @PathVariable Long dayId, @Valid @RequestBody CreateActivityDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(activityService.addActivity(tripId, dayId, dto, getCurrentUser()));
     }
 
     @PutMapping("/{activityId}")
-    public ResponseEntity<ActivityResponse> updateActivity(@PathVariable Long tripId, @PathVariable Long dayId, @PathVariable Long activityId, @RequestBody UpdateActivityDTO dto) {
+    public ResponseEntity<ActivityResponse> updateActivity(@PathVariable Long tripId, @PathVariable Long dayId, @PathVariable Long activityId, @Valid @RequestBody UpdateActivityDTO dto) {
         return ResponseEntity.ok(activityService.updateActivity(tripId, dayId, activityId, dto, getCurrentUser()));
     }
 

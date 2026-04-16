@@ -8,6 +8,7 @@ import com.mcesnik.planner_backend.model.TripDay;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.repository.ActivityRepository;
 import com.mcesnik.planner_backend.repository.TripDayRepository;
+import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
 import com.mcesnik.planner_backend.responses.ActivityResponse;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,11 @@ public class ActivityService {
         var activity = activityMapper.toEntity(dto);
         activity.setTripDay(day);
 
+        if (activity.getStartTime() != null && activity.getEndTime() != null
+                && activity.getEndTime().isBefore(activity.getStartTime())) {
+            throw new InvalidDateRangeException("End time must not be before start time");
+        }
+
         activity = activityRepository.save(activity);
 
         return activityMapper.toResponse(activity);
@@ -45,6 +51,12 @@ public class ActivityService {
         var activity = findActivityOrThrow(activityId, dayId);
 
         activityMapper.updateEntity(activity, dto);
+
+        if (activity.getStartTime() != null && activity.getEndTime() != null
+                && activity.getEndTime().isBefore(activity.getStartTime())) {
+            throw new InvalidDateRangeException("End time must not be before start time");
+        }
+
         activity = activityRepository.save(activity);
 
         return activityMapper.toResponse(activity);

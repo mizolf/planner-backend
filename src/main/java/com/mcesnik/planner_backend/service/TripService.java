@@ -14,6 +14,7 @@ import com.mcesnik.planner_backend.repository.ActivityRepository;
 import com.mcesnik.planner_backend.repository.TripDayRepository;
 import com.mcesnik.planner_backend.repository.TripRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
+import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
 import com.mcesnik.planner_backend.responses.TripDetailResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,11 @@ public class TripService {
 
     public TripResponse createTrip(CreateTripDTO request, User currentUser){
         Trip trip = tripMapper.toEntity(request);
+
+        if (trip.getEndDate().isBefore(trip.getStartDate())) {
+            throw new InvalidDateRangeException("End date must not be before start date");
+        }
+
         trip = tripRepository.save(trip);
 
         UserTrip ownership = UserTrip.builder()
@@ -95,6 +101,12 @@ public class TripService {
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
         tripMapper.updateEntity(trip, request);
+
+        if (trip.getStartDate() != null && trip.getEndDate() != null
+                && trip.getEndDate().isBefore(trip.getStartDate())) {
+            throw new InvalidDateRangeException("End date must not be before start date");
+        }
+
         trip = tripRepository.save(trip);
 
         return tripMapper.toResponse(trip);

@@ -29,14 +29,14 @@ public class TripMapper {
     }
 
     public void updateEntity(Trip trip, UpdateTripDTO dto) {
-        trip.setName(dto.getName());
-        trip.setDescription(dto.getDescription());
-        trip.setDestination(dto.getDestination());
-        trip.setStartDate(dto.getStartDate());
-        trip.setEndDate(dto.getEndDate());
-        trip.setStatus(dto.getStatus());
-        trip.setBudget(dto.getBudget());
-        trip.setInterests(dto.getInterests());
+        if (dto.getName() != null) trip.setName(dto.getName());
+        if (dto.getDescription() != null) trip.setDescription(dto.getDescription());
+        if (dto.getDestination() != null) trip.setDestination(dto.getDestination());
+        if (dto.getStartDate() != null) trip.setStartDate(dto.getStartDate());
+        if (dto.getEndDate() != null) trip.setEndDate(dto.getEndDate());
+        if (dto.getStatus() != null) trip.setStatus(dto.getStatus());
+        if (dto.getBudget() != null) trip.setBudget(dto.getBudget());
+        if (dto.getInterests() != null) trip.setInterests(dto.getInterests());
     }
 
     public TripResponse toResponse(Trip trip) {

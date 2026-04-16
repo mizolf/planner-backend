@@ -20,11 +20,11 @@ public class ActivityMapper {
     }
 
     public void updateEntity(Activity activity, UpdateActivityDTO dto) {
-        activity.setName(dto.getName());
-        activity.setDescription(dto.getDescription());
-        activity.setLocation(dto.getLocation());
-        activity.setStartTime(dto.getStartTime());
-        activity.setEndTime(dto.getEndTime());
+        if (dto.getName() != null) activity.setName(dto.getName());
+        if (dto.getDescription() != null) activity.setDescription(dto.getDescription());
+        if (dto.getLocation() != null) activity.setLocation(dto.getLocation());
+        if (dto.getStartTime() != null) activity.setStartTime(dto.getStartTime());
+        if (dto.getEndTime() != null) activity.setEndTime(dto.getEndTime());
     }
 
     public ActivityResponse toResponse(Activity activity) {

@@ -5,6 +5,7 @@ import com.mcesnik.planner_backend.DTO.UpdateTripDayDTO;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.responses.TripDayResponse;
 import com.mcesnik.planner_backend.service.TripDayService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,12 +22,12 @@ public class TripDayController {
     }
 
     @PostMapping
-    public ResponseEntity<TripDayResponse> addDay(@PathVariable Long tripId, @RequestBody CreateTripDayDTO dto) {
+    public ResponseEntity<TripDayResponse> addDay(@PathVariable Long tripId, @Valid @RequestBody CreateTripDayDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tripDayService.addDay(tripId, dto, getCurrentUser()));
     }
 
     @PutMapping("/{dayId}")
-    public ResponseEntity<TripDayResponse> updateDay(@PathVariable Long tripId, @PathVariable Long dayId, @RequestBody UpdateTripDayDTO dto) {
+    public ResponseEntity<TripDayResponse> updateDay(@PathVariable Long tripId, @PathVariable Long dayId, @Valid @RequestBody UpdateTripDayDTO dto) {
         return ResponseEntity.ok(tripDayService.updateDay(tripId, dayId, dto, getCurrentUser()));
     }
 

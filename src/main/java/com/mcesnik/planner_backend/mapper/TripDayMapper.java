@@ -21,9 +21,9 @@ public class TripDayMapper {
     }
 
     public void updateEntity(TripDay day, UpdateTripDayDTO dto) {
-        day.setDayNumber(dto.getDayNumber());
-        day.setDate(dto.getDate());
-        day.setNotes(dto.getNotes());
+        if (dto.getDayNumber() != null) day.setDayNumber(dto.getDayNumber());
+        if (dto.getDate() != null) day.setDate(dto.getDate());
+        if (dto.getNotes() != null) day.setNotes(dto.getNotes());
     }
 
     public TripDayResponse toResponse(TripDay day, List<ActivityResponse> activities) {

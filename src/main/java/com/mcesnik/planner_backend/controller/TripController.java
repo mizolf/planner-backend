@@ -6,6 +6,7 @@ import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.responses.TripDetailResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
 import com.mcesnik.planner_backend.service.TripService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,7 @@ public class TripController {
     }
 
     @PostMapping
-    public ResponseEntity<TripResponse> createTrip(@RequestBody CreateTripDTO dto) {
+    public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody CreateTripDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tripService.createTrip(dto, getCurrentUser()));
     }
 
@@ -39,7 +40,7 @@ public class TripController {
     }
 
     @PutMapping("/{tripId}")
-    public ResponseEntity<TripResponse> updateTrip(@PathVariable Long tripId, @RequestBody UpdateTripDTO dto) {
+    public ResponseEntity<TripResponse> updateTrip(@PathVariable Long tripId, @Valid @RequestBody UpdateTripDTO dto) {
         return ResponseEntity.ok(tripService.updateTrip(tripId, dto, getCurrentUser()));
     }
 
