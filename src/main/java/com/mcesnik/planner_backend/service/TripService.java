@@ -6,6 +6,7 @@ import com.mcesnik.planner_backend.mapper.ActivityMapper;
 import com.mcesnik.planner_backend.mapper.TripDayMapper;
 import com.mcesnik.planner_backend.mapper.TripMapper;
 import com.mcesnik.planner_backend.mapper.UserTripMapper;
+import com.mcesnik.planner_backend.model.Activity;
 import com.mcesnik.planner_backend.model.Enums.TripRole;
 import com.mcesnik.planner_backend.model.Trip;
 import com.mcesnik.planner_backend.model.User;
@@ -19,7 +20,10 @@ import com.mcesnik.planner_backend.responses.TripDetailResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TripService {
@@ -79,9 +83,18 @@ public class TripService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
-        var days = tripDayRepository.findByTripIdOrderByDayNumberAsc(tripId).stream()
+        var tripDays = tripDayRepository.findByTripIdOrderByDayNumberAsc(tripId);
+
+        List<Long> dayIds = tripDays.stream().map(day -> day.getId()).toList();
+
+        Map<Long, List<Activity>> activitiesByDayId = dayIds.isEmpty()
+                ? Collections.emptyMap()
+                : activityRepository.findByTripDayIdInOrderByStartTimeAsc(dayIds).stream()
+                        .collect(Collectors.groupingBy(activity -> activity.getTripDay().getId()));
+
+        var days = tripDays.stream()
                 .map(day -> {
-                    var activities = activityRepository.findByTripDayIdOrderByStartTimeAsc(day.getId()).stream()
+                    var activities = activitiesByDayId.getOrDefault(day.getId(), Collections.emptyList()).stream()
                             .map(activityMapper::toResponse)
                             .toList();
                     return tripDayMapper.toResponse(day, activities);

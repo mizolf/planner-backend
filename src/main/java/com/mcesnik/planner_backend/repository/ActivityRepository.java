@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<Activity> findByTripDayIdOrderByStartTimeAsc(Long tripDayId);
+    List<Activity> findByTripDayIdInOrderByStartTimeAsc(List<Long> tripDayIds);
 }

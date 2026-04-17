@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -26,19 +27,22 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final JwtService jwtService;
 
     public AuthenticationService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
             EmailService emailService,
-            TokenBlacklistService tokenBlacklistService
+            TokenBlacklistService tokenBlacklistService,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.emailService = emailService;
         this.tokenBlacklistService = tokenBlacklistService;
+        this.jwtService = jwtService;
     }
 
     public User signUp(RegisterUserDTO input) {
@@ -99,7 +103,8 @@ public class AuthenticationService {
     }
 
     public void logout(String token) {
-        tokenBlacklistService.blacklist(token);
+        Instant expiresAt = jwtService.extractExpiration(token).toInstant();
+        tokenBlacklistService.blacklist(token, expiresAt);
     }
 
     private String generateVerificationCode() {

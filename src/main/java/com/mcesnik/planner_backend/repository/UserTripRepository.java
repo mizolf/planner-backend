@@ -5,12 +5,15 @@ import com.mcesnik.planner_backend.model.UserTrip;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
+
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserTripRepository extends JpaRepository<UserTrip, Long> {
     List<UserTrip> findByUserId(Long userId);
+    @EntityGraph(attributePaths = "user")
     List<UserTrip> findByTripId(Long tripId);
     Optional<UserTrip> findByUserIdAndTripId(Long userId, Long tripId);
     boolean existsByUserIdAndTripId(Long userId, Long tripId);
