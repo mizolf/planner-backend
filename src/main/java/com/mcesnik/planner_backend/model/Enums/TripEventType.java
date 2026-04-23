@@ -1,0 +1,15 @@
+package com.mcesnik.planner_backend.model.Enums;
+
+public enum TripEventType {
+    TRIP_CREATED,
+    TRIP_UPDATED,
+    DAY_ADDED,
+    DAY_UPDATED,
+    DAY_DELETED,
+    ACTIVITY_ADDED,
+    ACTIVITY_UPDATED,
+    ACTIVITY_DELETED,
+    MEMBER_ADDED,
+    MEMBER_ROLE_CHANGED,
+    MEMBER_REMOVED
+}

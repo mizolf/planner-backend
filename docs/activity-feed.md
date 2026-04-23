@@ -12,7 +12,7 @@ When any trip member performs a CRUD operation (create/update/delete) on a trip,
 ## Entity Relationship Diagram
 
 ```
-Trip ──< TripActivity
+Trip ──< TripEvent
               │
               ├── actor (User FK, nullable — SET NULL on user deletion)
               ├── actorName (denormalized — survives user deletion)
@@ -22,7 +22,7 @@ Trip ──< TripActivity
               └── changes (JSONB — field-level diffs for updates)
 ```
 
-## TripActivity Entity (table: `trip_activities`)
+## TripEvent Entity (table: `trip_events`)
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -30,8 +30,8 @@ Trip ──< TripActivity
 | trip | Trip (FK) | not null, CASCADE DELETE via @OnDelete |
 | actor | User (FK) | nullable, SET NULL via @OnDelete — preserved via actorName |
 | actorName | String | not null — denormalized name, preserved after user deletion |
-| eventType | ActivityEventType (enum) | not null, STRING |
-| entityType | EntityType (enum) | not null, STRING |
+| eventType | TripEventType (enum) | not null, STRING |
+| entityType | TripEventEntityType (enum) | not null, STRING |
 | entityId | Long | ID of affected entity |
 | entityName | String | not null — denormalized name, preserved after entity deletion |
 | changes | String (JSONB) | nullable — JSON array of field diffs for UPDATE events |
@@ -65,7 +65,7 @@ For CREATE and DELETE events, `changes` is `null`. The `entityName` field preser
 
 ## Enums
 
-### ActivityEventType
+### TripEventType
 
 | Value | Trigger |
 |-------|---------|
@@ -83,7 +83,7 @@ For CREATE and DELETE events, `changes` is `null`. The `entityName` field preser
 
 **Note:** `TRIP_DELETED` is intentionally absent — cascade delete removes both the trip and all its activity records. No one can view a deleted trip's feed.
 
-### EntityType
+### TripEventEntityType
 
 `TRIP` | `TRIP_DAY` | `ACTIVITY` | `MEMBER`
 
@@ -99,13 +99,13 @@ Service method (e.g. TripService.updateTrip)     [@Transactional]
     ├── 1. Detect field changes (ChangeDetector)
     ├── 2. Apply update (mapper.updateEntity)
     ├── 3. Save entity (repository.save)
-    ├── 4. Publish TripActivityEvent (ApplicationEventPublisher)
+    ├── 4. Publish TripEventRecorded (ApplicationEventPublisher)
     │
     └── @TransactionalEventListener(BEFORE_COMMIT)
             │
-            └── TripActivityEventListener
+            └── TripEventListener
                     │
-                    └── Serialize changes to JSON, save TripActivity
+                    └── Serialize changes to JSON, save TripEvent
 ```
 
 **Prerequisite:** All service methods that publish events must be annotated with `@Transactional`. Without a transaction boundary, `@TransactionalEventListener(BEFORE_COMMIT)` has no commit phase to hook into.
@@ -115,16 +115,16 @@ Service method (e.g. TripService.updateTrip)     [@Transactional]
 | Component | Location | Purpose |
 |-----------|----------|---------|
 | `FieldChange` | `event/FieldChange.java` | Record: `field`, `oldValue`, `newValue` |
-| `TripActivityEvent` | `event/TripActivityEvent.java` | In-memory Spring event (not JPA) |
+| `TripEventRecorded` | `event/TripEventRecorded.java` | In-memory Spring event (not JPA) |
 | `ChangeDetector` | `event/ChangeDetector.java` | Compares entity state vs update DTO |
-| `TripActivityEventListener` | `event/TripActivityEventListener.java` | Persists events inside the transaction |
-| `TripActivityService` | `service/TripActivityService.java` | Query feed + scheduled cleanup |
-| `TripActivityController` | `controller/TripActivityController.java` | REST endpoint |
-| `TripActivityMapper` | `mapper/TripActivityMapper.java` | Entity → response DTO |
+| `TripEventListener` | `event/TripEventListener.java` | Persists events inside the transaction |
+| `ActivityFeedService` | `service/ActivityFeedService.java` | Query feed + scheduled cleanup |
+| `ActivityFeedController` | `controller/ActivityFeedController.java` | REST endpoint |
+| `ActivityFeedMapper` | `mapper/ActivityFeedMapper.java` | Entity → response DTO |
 
 ### Design Decisions
 
-1. **Spring ApplicationEventPublisher** — decouples activity tracking from business logic. Services don't depend on TripActivityRepository. Same event infrastructure supports future SSE integration (add a second listener that pushes to SseEmitter registry — zero changes to services).
+1. **Spring ApplicationEventPublisher** — decouples activity tracking from business logic. Services don't depend on TripEventRepository. Same event infrastructure supports future SSE integration (add a second listener that pushes to SseEmitter registry — zero changes to services).
 
 2. **@TransactionalEventListener(phase = BEFORE_COMMIT)** — runs inside the same transaction. If event recording fails, the business operation rolls back too. Guarantees consistency.
 
@@ -134,13 +134,13 @@ Service method (e.g. TripService.updateTrip)     [@Transactional]
 
 5. **deleteTrip — no event recorded** — cascade delete removes both the trip and its activity records. Since nobody can view a deleted trip's feed, this is acceptable. All other DELETE events (day, activity, member) ARE recorded — the event is published before the entity is deleted, and both operations commit together.
 
-6. **Privacy at query level** — repository has separate queries for VIEWER (excludes `EntityType.MEMBER`) vs OWNER/EDITOR (all events). Enforced in `TripActivityService`, not filtered in Java. If a VIEWER explicitly requests `entityType=MEMBER`, the service returns 403 Forbidden.
+6. **Privacy at query level** — repository has separate queries for VIEWER (excludes `TripEventEntityType.MEMBER`) vs OWNER/EDITOR (all events). Enforced in `ActivityFeedService`, not filtered in Java. If a VIEWER explicitly requests `entityType=MEMBER`, the service returns 403 Forbidden.
 
-7. **@OnDelete(CASCADE) instead of JPA cascade** — avoids adding a `List<TripActivity>` collection to Trip entity, which would affect existing queries and lazy loading.
+7. **@OnDelete(CASCADE) instead of JPA cascade** — avoids adding a `List<TripEvent>` collection to Trip entity, which would affect existing queries and lazy loading.
 
 8. **Denormalized actorName** — stored at event creation time. When a user is deleted (`actor_id` set to null via `@OnDelete(SET_NULL)`), the feed still displays the original actor name. Frontend shows "Deleted user" when `actorId` is null.
 
-9. **@EntityGraph on repository queries** — `@EntityGraph(attributePaths = {"actor"})` on all TripActivityRepository query methods to prevent N+1 lazy loading of actor for each feed item.
+9. **@EntityGraph on repository queries** — `@EntityGraph(attributePaths = {"actor"})` on all TripEventRepository query methods to prevent N+1 lazy loading of actor for each feed item.
 
 ## API Endpoint
 
@@ -158,7 +158,7 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
 
 **Authorization:** Any trip member. VIEWERs automatically receive a filtered feed (no MEMBER events). VIEWERs requesting `entityType=MEMBER` receive 403 Forbidden.
 
-**Response:** Spring `Page<TripActivityResponse>`
+**Response:** Spring `Page<ActivityFeedItemResponse>`
 
 ```json
 {
@@ -244,7 +244,7 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
 
 ## Retention
 
-A scheduled job runs daily at 3:00 AM (`@Scheduled(cron = "0 0 3 * * *")`), deleting all `TripActivity` records with `createdAt` older than the configured retention period.
+A scheduled job runs daily at 3:00 AM (`@Scheduled(cron = "0 0 3 * * *")`), deleting all `TripEvent` records with `createdAt` older than the configured retention period.
 
 ```properties
 # application.properties
@@ -269,6 +269,6 @@ Uses `@EnableScheduling` which is already configured on the main application cla
 The event architecture is SSE-ready. To add real-time notifications:
 
 1. Create an `SseEmitterRegistry` that tracks open connections per trip
-2. Add a second `@EventListener` method on `TripActivityEventListener` that pushes to connected emitters
+2. Add a second `@EventListener` method on `TripEventListener` that pushes to connected emitters
 3. Add `GET /trips/{tripId}/activity-feed/stream` endpoint returning `SseEmitter`
 4. No changes needed to any existing service methods — they already publish events

@@ -2,16 +2,24 @@ package com.mcesnik.planner_backend.service;
 
 import com.mcesnik.planner_backend.DTO.CreateActivityDTO;
 import com.mcesnik.planner_backend.DTO.UpdateActivityDTO;
+import com.mcesnik.planner_backend.event.ChangeDetector;
+import com.mcesnik.planner_backend.event.FieldChange;
+import com.mcesnik.planner_backend.event.TripEventRecorded;
 import com.mcesnik.planner_backend.mapper.ActivityMapper;
 import com.mcesnik.planner_backend.model.Activity;
+import com.mcesnik.planner_backend.model.Enums.TripEventEntityType;
+import com.mcesnik.planner_backend.model.Enums.TripEventType;
 import com.mcesnik.planner_backend.model.TripDay;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.repository.ActivityRepository;
 import com.mcesnik.planner_backend.repository.TripDayRepository;
 import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
 import com.mcesnik.planner_backend.responses.ActivityResponse;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class ActivityService {
@@ -19,12 +27,16 @@ public class ActivityService {
     private final TripDayRepository tripDayRepository;
     private final ActivityMapper activityMapper;
     private final TripAuthorizationService authorizationService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final ChangeDetector changeDetector;
 
-    public ActivityService(ActivityRepository activityRepository, TripDayRepository tripDayRepository, ActivityMapper activityMapper, TripAuthorizationService authorizationService) {
+    public ActivityService(ActivityRepository activityRepository, TripDayRepository tripDayRepository, ActivityMapper activityMapper, TripAuthorizationService authorizationService, ApplicationEventPublisher eventPublisher, ChangeDetector changeDetector) {
         this.activityRepository = activityRepository;
         this.tripDayRepository = tripDayRepository;
         this.activityMapper = activityMapper;
         this.authorizationService = authorizationService;
+        this.eventPublisher = eventPublisher;
+        this.changeDetector = changeDetector;
     }
 
     @Transactional
@@ -43,6 +55,11 @@ public class ActivityService {
 
         activity = activityRepository.save(activity);
 
+        eventPublisher.publishEvent(new TripEventRecorded(
+                day.getTrip(), currentUser,
+                TripEventType.ACTIVITY_ADDED, TripEventEntityType.ACTIVITY,
+                activity.getId(), activity.getName(), null));
+
         return activityMapper.toResponse(activity);
     }
 
@@ -50,8 +67,10 @@ public class ActivityService {
     public ActivityResponse updateActivity(Long tripId, Long dayId, Long activityId, UpdateActivityDTO dto, User currentUser) {
         authorizationService.validateEditorOrOwner(tripId, currentUser);
 
-        findDayOrThrow(dayId, tripId);
+        var day = findDayOrThrow(dayId, tripId);
         var activity = findActivityOrThrow(activityId, dayId);
+
+        List<FieldChange> changes = changeDetector.detectActivityChanges(activity, dto);
 
         activityMapper.updateEntity(activity, dto);
 
@@ -62,6 +81,13 @@ public class ActivityService {
 
         activity = activityRepository.save(activity);
 
+        if (!changes.isEmpty()) {
+            eventPublisher.publishEvent(new TripEventRecorded(
+                    day.getTrip(), currentUser,
+                    TripEventType.ACTIVITY_UPDATED, TripEventEntityType.ACTIVITY,
+                    activity.getId(), activity.getName(), changes));
+        }
+
         return activityMapper.toResponse(activity);
     }
 
@@ -69,8 +95,13 @@ public class ActivityService {
     public void deleteActivity(Long tripId, Long dayId, Long activityId, User currentUser) {
         authorizationService.validateEditorOrOwner(tripId, currentUser);
 
-        findDayOrThrow(dayId, tripId);
+        var day = findDayOrThrow(dayId, tripId);
         var activity = findActivityOrThrow(activityId, dayId);
+
+        eventPublisher.publishEvent(new TripEventRecorded(
+                day.getTrip(), currentUser,
+                TripEventType.ACTIVITY_DELETED, TripEventEntityType.ACTIVITY,
+                activity.getId(), activity.getName(), null));
 
         activityRepository.delete(activity);
     }

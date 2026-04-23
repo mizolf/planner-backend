@@ -2,7 +2,11 @@ package com.mcesnik.planner_backend.service;
 
 import com.mcesnik.planner_backend.DTO.AddTripMemberDTO;
 import com.mcesnik.planner_backend.DTO.UpdateTripMemberDTO;
+import com.mcesnik.planner_backend.event.FieldChange;
+import com.mcesnik.planner_backend.event.TripEventRecorded;
 import com.mcesnik.planner_backend.mapper.UserTripMapper;
+import com.mcesnik.planner_backend.model.Enums.TripEventEntityType;
+import com.mcesnik.planner_backend.model.Enums.TripEventType;
 import com.mcesnik.planner_backend.model.Enums.TripRole;
 import com.mcesnik.planner_backend.model.Trip;
 import com.mcesnik.planner_backend.model.User;
@@ -11,8 +15,11 @@ import com.mcesnik.planner_backend.repository.TripRepository;
 import com.mcesnik.planner_backend.repository.UserRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
 import com.mcesnik.planner_backend.responses.TripMemberResponse;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class TripMemberService {
@@ -21,13 +28,15 @@ public class TripMemberService {
     private final TripRepository tripRepository;
     private final UserTripMapper userTripMapper;
     private final TripAuthorizationService authorizationService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public TripMemberService(UserTripRepository userTripRepository, UserRepository userRepository, TripRepository tripRepository, UserTripMapper userTripMapper, TripAuthorizationService authorizationService) {
+    public TripMemberService(UserTripRepository userTripRepository, UserRepository userRepository, TripRepository tripRepository, UserTripMapper userTripMapper, TripAuthorizationService authorizationService, ApplicationEventPublisher eventPublisher) {
         this.userTripRepository = userTripRepository;
         this.userRepository = userRepository;
         this.tripRepository = tripRepository;
         this.userTripMapper = userTripMapper;
         this.authorizationService = authorizationService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -55,6 +64,11 @@ public class TripMemberService {
                 .build();
         userTrip = userTripRepository.save(userTrip);
 
+        eventPublisher.publishEvent(new TripEventRecorded(
+                trip, currentUser,
+                TripEventType.MEMBER_ADDED, TripEventEntityType.MEMBER,
+                targetUser.getId(), targetUser.getFullName(), null));
+
         return userTripMapper.toResponse(userTrip);
     }
 
@@ -77,8 +91,20 @@ public class TripMemberService {
             throw new RuntimeException("Cannot change the role of the trip owner");
         }
 
-        userTrip.setRole(dto.getRole());
+        TripRole oldRole = userTrip.getRole();
+        TripRole newRole = dto.getRole();
+
+        userTrip.setRole(newRole);
         userTrip = userTripRepository.save(userTrip);
+
+        if (oldRole != newRole) {
+            User targetUser = userTrip.getUser();
+            eventPublisher.publishEvent(new TripEventRecorded(
+                    userTrip.getTrip(), currentUser,
+                    TripEventType.MEMBER_ROLE_CHANGED, TripEventEntityType.MEMBER,
+                    targetUser.getId(), targetUser.getFullName(),
+                    List.of(new FieldChange("role", oldRole.name(), newRole.name()))));
+        }
 
         return userTripMapper.toResponse(userTrip);
     }
@@ -97,6 +123,12 @@ public class TripMemberService {
         if (userTrip.getRole() == TripRole.OWNER) {
             throw new RuntimeException("Cannot remove the trip owner");
         }
+
+        User targetUser = userTrip.getUser();
+        eventPublisher.publishEvent(new TripEventRecorded(
+                userTrip.getTrip(), currentUser,
+                TripEventType.MEMBER_REMOVED, TripEventEntityType.MEMBER,
+                targetUser.getId(), targetUser.getFullName(), null));
 
         userTripRepository.delete(userTrip);
     }
