@@ -19,6 +19,7 @@ import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
 import com.mcesnik.planner_backend.responses.TripDetailResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +52,7 @@ public class TripService {
     }
 
 
+    @Transactional
     public TripResponse createTrip(CreateTripDTO request, User currentUser){
         Trip trip = tripMapper.toEntity(request);
 
@@ -70,6 +72,7 @@ public class TripService {
         return tripMapper.toResponse(trip);
     }
 
+    @Transactional(readOnly = true)
     public List<TripResponse> getTripsForUser(User currentUser){
         List<UserTrip> userTrips = userTripRepository.findByUserId(currentUser.getId());
         return userTrips.stream()
@@ -77,6 +80,7 @@ public class TripService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public TripDetailResponse getTripDetail(Long tripId, User currentUser){
         authorizationService.validateMembership(tripId, currentUser);
 
@@ -107,6 +111,7 @@ public class TripService {
         return tripMapper.toDetailResponse(trip, days, members);
     }
 
+    @Transactional
     public TripResponse updateTrip(Long tripId, UpdateTripDTO request, User currentUser){
         authorizationService.validateEditorOrOwner(tripId, currentUser);
 
@@ -125,6 +130,7 @@ public class TripService {
         return tripMapper.toResponse(trip);
     }
 
+    @Transactional
     public void deleteTrip(Long tripId, User currentUser){
         authorizationService.validateOwner(tripId, currentUser);
 

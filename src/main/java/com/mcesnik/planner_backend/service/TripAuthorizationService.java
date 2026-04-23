@@ -11,6 +11,7 @@ import com.mcesnik.planner_backend.repository.TripDayRepository;
 import com.mcesnik.planner_backend.repository.TripRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TripAuthorizationService {
@@ -26,11 +27,13 @@ public class TripAuthorizationService {
         this.activityRepository = activityRepository;
     }
 
+    @Transactional(readOnly = true)
     public UserTrip validateMembership(Long tripId, User currentUser){
         return userTripRepository.findByUserIdAndTripId(currentUser.getId(), tripId)
                 .orElseThrow(() -> new RuntimeException("You are not a member of this trip"));
     }
 
+    @Transactional(readOnly = true)
     public UserTrip validateEditorOrOwner(Long tripId, User currentUser){
         UserTrip userTrip = validateMembership(tripId, currentUser);
 
@@ -40,6 +43,7 @@ public class TripAuthorizationService {
         return userTrip;
     }
 
+    @Transactional(readOnly = true)
     public UserTrip validateOwner(Long tripId, User currentUser){
         UserTrip userTrip = validateMembership(tripId, currentUser);
 

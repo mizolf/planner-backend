@@ -13,6 +13,7 @@ import com.mcesnik.planner_backend.repository.TripRepository;
 import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
 import com.mcesnik.planner_backend.responses.TripDayResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class TripDayService {
         this.authorizationService = authorizationService;
     }
 
+    @Transactional
     public TripDayResponse addDay(Long tripId, CreateTripDayDTO request, User currentUser) {
         authorizationService.validateEditorOrOwner(tripId, currentUser);
 
@@ -53,6 +55,7 @@ public class TripDayService {
 
         return tripDayMapper.toResponse(day, List.of());
     }
+    @Transactional
     public TripDayResponse updateDay(Long tripId, Long dayId, UpdateTripDayDTO dto, User currentUser) {
         authorizationService.validateEditorOrOwner(tripId, currentUser);
 
@@ -75,6 +78,7 @@ public class TripDayService {
         return tripDayMapper.toResponse(day, activities);
     }
 
+    @Transactional
     public void deleteDay(Long tripId, Long dayId, User currentUser) {
         authorizationService.validateEditorOrOwner(tripId, currentUser);
 

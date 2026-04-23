@@ -12,6 +12,7 @@ import com.mcesnik.planner_backend.repository.UserRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
 import com.mcesnik.planner_backend.responses.TripMemberResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TripMemberService {
@@ -29,6 +30,7 @@ public class TripMemberService {
         this.authorizationService = authorizationService;
     }
 
+    @Transactional
     public TripMemberResponse addMember(Long tripId, AddTripMemberDTO dto, User currentUser) {
         authorizationService.validateOwner(tripId, currentUser);
 
@@ -56,6 +58,7 @@ public class TripMemberService {
         return userTripMapper.toResponse(userTrip);
     }
 
+    @Transactional
     public TripMemberResponse updateMemberRole(Long tripId, Long userId, UpdateTripMemberDTO dto, User currentUser) {
         authorizationService.validateOwner(tripId, currentUser);
 
@@ -80,6 +83,7 @@ public class TripMemberService {
         return userTripMapper.toResponse(userTrip);
     }
 
+    @Transactional
     public void removeMember(Long tripId, Long userId, User currentUser) {
         authorizationService.validateOwner(tripId, currentUser);
 

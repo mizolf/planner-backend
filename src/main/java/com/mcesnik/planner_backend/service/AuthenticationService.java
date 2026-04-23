@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
 
+    @Transactional
     public User signUp(RegisterUserDTO input) {
         User user = new User(input.getFullName(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
         user.setVerificationCode(generateVerificationCode());
@@ -71,6 +73,7 @@ public class AuthenticationService {
         return user;
     }
 
+    @Transactional
     public void verifyUser(VerifiedUserDTO input) {
         User user = userRepository.findByEmail(input.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -88,6 +91,7 @@ public class AuthenticationService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void resendVerificationCode(ResendVerificationDTO input) {
         User user = userRepository.findByEmail(input.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

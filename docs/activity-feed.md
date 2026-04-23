@@ -6,15 +6,16 @@ Architecture documentation for the trip activity feed — tracks all CRUD operat
 
 When any trip member performs a CRUD operation (create/update/delete) on a trip, day, activity, or member, the system records the event with fine-grained field-level detail. All trip members can view the feed via a paginated REST endpoint.
 
-**Privacy rule:** VIEWERs cannot see member management actions (add/remove/role change).
-**Retention:** Activity records older than 3 months are automatically deleted.
+**Privacy rule:** VIEWERs cannot see member management actions (add/remove/role change). Requesting `entityType=MEMBER` as a VIEWER returns 403 Forbidden.
+**Retention:** Activity records older than a configurable period (default: 3 months) are automatically deleted.
 
 ## Entity Relationship Diagram
 
 ```
 Trip ──< TripActivity
               │
-              ├── actor (User who performed the action)
+              ├── actor (User FK, nullable — SET NULL on user deletion)
+              ├── actorName (denormalized — survives user deletion)
               ├── eventType (TRIP_CREATED, ACTIVITY_UPDATED, etc.)
               ├── entityType (TRIP, TRIP_DAY, ACTIVITY, MEMBER)
               ├── entityName (denormalized — survives entity deletion)
@@ -27,18 +28,20 @@ Trip ──< TripActivity
 |-------|------|-------------|
 | id | Long | PK, auto-generated |
 | trip | Trip (FK) | not null, CASCADE DELETE via @OnDelete |
-| actor | User (FK) | not null |
+| actor | User (FK) | nullable, SET NULL via @OnDelete — preserved via actorName |
+| actorName | String | not null — denormalized name, preserved after user deletion |
 | eventType | ActivityEventType (enum) | not null, STRING |
 | entityType | EntityType (enum) | not null, STRING |
 | entityId | Long | ID of affected entity |
-| entityName | String | not null — denormalized name, preserved after deletion |
+| entityName | String | not null — denormalized name, preserved after entity deletion |
 | changes | String (JSONB) | nullable — JSON array of field diffs for UPDATE events |
-| targetMemberName | String | nullable — affected member's name for MEMBER events |
 | createdAt | Instant | not null, auto-set |
 
 **Index:** `(trip_id, created_at DESC)` — optimizes the primary query pattern.
 
 **Cascade:** `@OnDelete(action = OnDeleteAction.CASCADE)` on the trip FK. When a trip is deleted, all its activity records are cleaned up at the DB level without modifying the Trip entity.
+
+**Actor deletion:** `@OnDelete(action = OnDeleteAction.SET_NULL)` on the actor FK. When a user is deleted, `actor_id` becomes null but `actorName` preserves the user's name. Frontend displays "Deleted user" when `actorId` is null.
 
 ### Changes JSON Format
 
@@ -53,6 +56,13 @@ For UPDATE events, the `changes` column stores a JSON array of field-level diffs
 
 For CREATE and DELETE events, `changes` is `null`. The `entityName` field preserves the entity's name at the time of the event.
 
+### ChangeDetector Implementation Notes
+
+- **BigDecimal fields:** compared via `compareTo() == 0` (not `equals()`) to avoid false positives from scale differences (`1000.00` vs `1000.0`).
+- **Collection fields (e.g. Set\<Interest\>):** elements sorted before `toString()` to avoid false positives from ordering differences.
+- **Null-to-value transitions:** detected (DTO field is non-null, entity field is null → change recorded).
+- **Value-to-null:** not detectable — null DTO fields mean "don't change" per existing mapper convention.
+
 ## Enums
 
 ### ActivityEventType
@@ -61,7 +71,6 @@ For CREATE and DELETE events, `changes` is `null`. The `entityName` field preser
 |-------|---------|
 | `TRIP_CREATED` | Trip created |
 | `TRIP_UPDATED` | Trip fields modified |
-| `TRIP_DELETED` | Trip deleted (not recorded — cascade deletes feed) |
 | `DAY_ADDED` | TripDay created |
 | `DAY_UPDATED` | TripDay fields modified |
 | `DAY_DELETED` | TripDay deleted |
@@ -71,6 +80,8 @@ For CREATE and DELETE events, `changes` is `null`. The `entityName` field preser
 | `MEMBER_ADDED` | User added to trip |
 | `MEMBER_ROLE_CHANGED` | User's role changed |
 | `MEMBER_REMOVED` | User removed from trip |
+
+**Note:** `TRIP_DELETED` is intentionally absent — cascade delete removes both the trip and all its activity records. No one can view a deleted trip's feed.
 
 ### EntityType
 
@@ -83,7 +94,7 @@ MEMBER events are hidden from VIEWER role users at the query level.
 ### Event Flow
 
 ```
-Service method (e.g. TripService.updateTrip)
+Service method (e.g. TripService.updateTrip)     [@Transactional]
     │
     ├── 1. Detect field changes (ChangeDetector)
     ├── 2. Apply update (mapper.updateEntity)
@@ -96,6 +107,8 @@ Service method (e.g. TripService.updateTrip)
                     │
                     └── Serialize changes to JSON, save TripActivity
 ```
+
+**Prerequisite:** All service methods that publish events must be annotated with `@Transactional`. Without a transaction boundary, `@TransactionalEventListener(BEFORE_COMMIT)` has no commit phase to hook into.
 
 ### Key Components
 
@@ -115,15 +128,19 @@ Service method (e.g. TripService.updateTrip)
 
 2. **@TransactionalEventListener(phase = BEFORE_COMMIT)** — runs inside the same transaction. If event recording fails, the business operation rolls back too. Guarantees consistency.
 
-3. **ChangeDetector** — mirrors the null-check pattern from existing mappers. Only non-null DTO fields are compared. Returns empty list if values are identical → no event recorded for no-op updates.
+3. **ChangeDetector** — mirrors the null-check pattern from existing mappers. Only non-null DTO fields are compared. Returns empty list if values are identical → no event recorded for no-op updates. Uses `compareTo()` for BigDecimal and sorted toString() for collections.
 
 4. **JSONB for changes** — Hibernate `@JdbcTypeCode(SqlTypes.JSON)` with PostgreSQL. All values stored as strings via `toString()`. No extra dependencies needed.
 
-5. **deleteTrip — no event recorded** — cascade delete removes both the trip and its activity records. Recording an event would fail (FK violation) or require a nullable FK. Since nobody can view a deleted trip's feed, this is acceptable.
+5. **deleteTrip — no event recorded** — cascade delete removes both the trip and its activity records. Since nobody can view a deleted trip's feed, this is acceptable. All other DELETE events (day, activity, member) ARE recorded — the event is published before the entity is deleted, and both operations commit together.
 
-6. **Privacy at query level** — repository has separate queries for VIEWER (excludes `EntityType.MEMBER`) vs OWNER/EDITOR (all events). Enforced in `TripActivityService`, not filtered in Java.
+6. **Privacy at query level** — repository has separate queries for VIEWER (excludes `EntityType.MEMBER`) vs OWNER/EDITOR (all events). Enforced in `TripActivityService`, not filtered in Java. If a VIEWER explicitly requests `entityType=MEMBER`, the service returns 403 Forbidden.
 
 7. **@OnDelete(CASCADE) instead of JPA cascade** — avoids adding a `List<TripActivity>` collection to Trip entity, which would affect existing queries and lazy loading.
+
+8. **Denormalized actorName** — stored at event creation time. When a user is deleted (`actor_id` set to null via `@OnDelete(SET_NULL)`), the feed still displays the original actor name. Frontend shows "Deleted user" when `actorId` is null.
+
+9. **@EntityGraph on repository queries** — `@EntityGraph(attributePaths = {"actor"})` on all TripActivityRepository query methods to prevent N+1 lazy loading of actor for each feed item.
 
 ## API Endpoint
 
@@ -139,7 +156,7 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
 | page | int | 0 | Page number (0-indexed) |
 | size | int | 20 | Page size |
 
-**Authorization:** Any trip member. VIEWERs automatically receive a filtered feed (no MEMBER events).
+**Authorization:** Any trip member. VIEWERs automatically receive a filtered feed (no MEMBER events). VIEWERs requesting `entityType=MEMBER` receive 403 Forbidden.
 
 **Response:** Spring `Page<TripActivityResponse>`
 
@@ -157,7 +174,6 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
       "changes": [
         { "field": "destination", "oldValue": "Paris", "newValue": "London" }
       ],
-      "targetMemberName": null,
       "createdAt": "2026-04-18T14:30:00Z"
     },
     {
@@ -169,8 +185,18 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
       "actorName": "Mislav",
       "actorId": 5,
       "changes": null,
-      "targetMemberName": "Ana Horvat",
       "createdAt": "2026-04-18T14:25:00Z"
+    },
+    {
+      "id": 40,
+      "eventType": "ACTIVITY_DELETED",
+      "entityType": "ACTIVITY",
+      "entityId": 15,
+      "entityName": "Louvre Visit",
+      "actorName": null,
+      "actorId": null,
+      "changes": null,
+      "createdAt": "2026-04-18T14:20:00Z"
     }
   ],
   "totalElements": 47,
@@ -179,6 +205,8 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
   "size": 20
 }
 ```
+
+**Note:** The third example shows a feed entry where the actor was deleted — `actorId` is null, `actorName` is null. Frontend should display "Deleted user" in this case.
 
 ## Tracked Events by Service
 
@@ -208,23 +236,33 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
 
 ### TripMemberService
 
-| Method | Event | entityName / targetMemberName |
-|--------|-------|-------------------------------|
+| Method | Event | entityName |
+|--------|-------|------------|
 | `addMember` | `MEMBER_ADDED` | targetUser.fullName |
 | `updateMemberRole` | `MEMBER_ROLE_CHANGED` | user.fullName + FieldChange("role", old, new) |
 | `removeMember` | `MEMBER_REMOVED` | user.fullName |
 
 ## Retention
 
-A scheduled job runs daily at 3:00 AM (`@Scheduled(cron = "0 0 3 * * *")`), deleting all `TripActivity` records with `createdAt` older than 3 months. Uses `@EnableScheduling` which is already configured on the main application class.
+A scheduled job runs daily at 3:00 AM (`@Scheduled(cron = "0 0 3 * * *")`), deleting all `TripActivity` records with `createdAt` older than the configured retention period.
+
+```properties
+# application.properties
+activity.feed.retention-months=3
+```
+
+Uses `@EnableScheduling` which is already configured on the main application class. Retention period is read via `@Value("${activity.feed.retention-months:3}")`.
 
 ## Edge Cases
 
 1. **No-op updates** — ChangeDetector returns empty list → no event published
 2. **Deleted entity names** — stored in `entityName` at event creation time
-3. **VIEWER requests entityType=MEMBER** — silently ignored, returns member-excluded feed
-4. **Concurrent updates** — events recorded in transaction commit order
-5. **Lazy loading** — `@Transactional` on service methods keeps Hibernate session open
+3. **Deleted actor** — `actor_id` set to null via DB cascade, `actorName` preserved. Frontend displays "Deleted user"
+4. **VIEWER requests entityType=MEMBER** — returns 403 Forbidden
+5. **Concurrent updates** — events recorded in transaction commit order
+6. **Lazy loading** — `@Transactional` on service methods keeps Hibernate session open
+7. **BigDecimal equality** — `compareTo()` prevents false changes from scale differences
+8. **Collection ordering** — sorted before comparison to prevent false changes
 
 ## Future: SSE Integration
 
