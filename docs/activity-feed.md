@@ -6,6 +6,10 @@ Architecture documentation for the trip activity feed — tracks all CRUD operat
 
 When any trip member performs a CRUD operation (create/update/delete) on a trip, day, activity, or member, the system records the event with fine-grained field-level detail. All trip members can view the feed via a paginated REST endpoint.
 
+Two endpoints consume the feed:
+- **Per-trip:** `GET /trips/{tripId}/activity-feed` — events for one trip, optionally filtered by `entityType`. Used inside a trip detail page.
+- **Dashboard (cross-trip):** `GET /activity-feed` — events across every trip the current user is a member of. Used by the home dashboard sidebar.
+
 **Privacy rule:** VIEWERs cannot see member management actions (add/remove/role change). Requesting `entityType=MEMBER` as a VIEWER returns 403 Forbidden.
 **Retention:** Activity records older than a configurable period (default: 3 months) are automatically deleted.
 
@@ -119,7 +123,8 @@ Service method (e.g. TripService.updateTrip)     [@Transactional]
 | `ChangeDetector` | `event/ChangeDetector.java` | Compares entity state vs update DTO |
 | `TripEventListener` | `event/TripEventListener.java` | Persists events inside the transaction |
 | `ActivityFeedService` | `service/ActivityFeedService.java` | Query feed + scheduled cleanup |
-| `ActivityFeedController` | `controller/ActivityFeedController.java` | REST endpoint |
+| `ActivityFeedController` | `controller/ActivityFeedController.java` | Per-trip REST endpoint |
+| `DashboardActivityFeedController` | `controller/DashboardActivityFeedController.java` | Cross-trip (dashboard) REST endpoint |
 | `ActivityFeedMapper` | `mapper/ActivityFeedMapper.java` | Entity → response DTO |
 
 ### Design Decisions
@@ -207,6 +212,49 @@ GET /trips/{tripId}/activity-feed?entityType={filter}&page={n}&size={n}
 ```
 
 **Note:** The third example shows a feed entry where the actor was deleted — `actorId` is null, `actorName` is null. Frontend should display "Deleted user" in this case.
+
+### Get Dashboard Activity Feed (cross-trip)
+
+```
+GET /activity-feed?page={n}&size={n}
+```
+
+Returns a paginated feed of events across **all trips the current user is a member of**, ordered by `createdAt DESC`. Used by the dashboard sidebar.
+
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| page | int | 0 | Page number (0-indexed) |
+| size | int | 20 | Page size |
+
+**Authorization:** Any authenticated user. Per-trip role filtering is applied in a single query — for trips where the user is a VIEWER, `MEMBER` events are excluded; for OWNER/EDITOR trips, all events are returned. No `entityType` filter param — dashboard is always the full (role-filtered) feed.
+
+**Response:** `Page<DashboardActivityFeedItemResponse>` — same shape as `ActivityFeedItemResponse` plus `tripId` and `tripName` so the frontend can render the trip context and link back to the trip detail page.
+
+```json
+{
+  "content": [
+    {
+      "id": 42,
+      "eventType": "ACTIVITY_ADDED",
+      "entityType": "ACTIVITY",
+      "entityId": 12,
+      "entityName": "Visit Colosseum",
+      "actorId": 2,
+      "actorName": "Sarah Miller",
+      "createdAt": "2026-04-24T10:15:00Z",
+      "changes": null,
+      "tripId": 1,
+      "tripName": "Rome Getaway"
+    }
+  ],
+  "totalElements": 128,
+  "totalPages": 7,
+  "number": 0,
+  "size": 20
+}
+```
+
+**Implementation:** A single JPQL query cross-joins `TripEvent` with `UserTrip` on `trip`, filters `ut.user.id = :userId`, and excludes rows where `ut.role = VIEWER AND e.entityType = MEMBER`. `@EntityGraph(attributePaths = {"actor", "trip"})` prevents N+1 on the mapper's `trip.id` / `trip.name` reads. See `TripEventRepository.findDashboardFeed`.
 
 ## Tracked Events by Service
 

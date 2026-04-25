@@ -8,6 +8,7 @@ import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.model.UserTrip;
 import com.mcesnik.planner_backend.repository.TripEventRepository;
 import com.mcesnik.planner_backend.responses.ActivityFeedItemResponse;
+import com.mcesnik.planner_backend.responses.DashboardActivityFeedItemResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,6 +58,16 @@ public class ActivityFeedService {
         }
 
         return events.map(mapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DashboardActivityFeedItemResponse> getDashboardFeed(User currentUser, Pageable pageable) {
+        Page<TripEvent> events = repository.findDashboardFeed(
+                currentUser.getId(),
+                TripRole.VIEWER,
+                TripEventEntityType.MEMBER,
+                pageable);
+        return events.map(mapper::toDashboardResponse);
     }
 
     @Scheduled(cron = "0 0 3 * * *")

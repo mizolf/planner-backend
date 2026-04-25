@@ -1,7 +1,7 @@
 package com.mcesnik.planner_backend.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.mcesnik.planner_backend.model.TripEvent;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.repository.TripEventRepository;
@@ -40,7 +40,7 @@ public class TripEventListener {
         }
         try {
             return objectMapper.writeValueAsString(event.changes());
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Failed to serialize field changes for trip event", e);
         }
     }

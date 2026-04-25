@@ -1,11 +1,14 @@
 package com.mcesnik.planner_backend.repository;
 
 import com.mcesnik.planner_backend.model.Enums.TripEventEntityType;
+import com.mcesnik.planner_backend.model.Enums.TripRole;
 import com.mcesnik.planner_backend.model.TripEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -21,6 +24,16 @@ public interface TripEventRepository extends JpaRepository<TripEvent, Long> {
 
     @EntityGraph(attributePaths = "actor")
     Page<TripEvent> findByTripIdAndEntityTypeNot(Long tripId, TripEventEntityType entityType, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"actor", "trip"})
+    @Query("SELECT e FROM TripEvent e, UserTrip ut " +
+           "WHERE ut.trip = e.trip AND ut.user.id = :userId " +
+           "AND NOT (ut.role = :viewerRole AND e.entityType = :memberType)")
+    Page<TripEvent> findDashboardFeed(
+            @Param("userId") Long userId,
+            @Param("viewerRole") TripRole viewerRole,
+            @Param("memberType") TripEventEntityType memberType,
+            Pageable pageable);
 
     long deleteByCreatedAtBefore(Instant threshold);
 }
