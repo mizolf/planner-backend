@@ -4,36 +4,36 @@ Architecture documentation for the trip template catalogue — a curated, read-m
 
 ## Overview
 
-A user starting from an empty dashboard has no inspiration. Explore Templates adds a discovery surface: a catalogue of pre-built trips grouped by **style** (Nightlife, Relax, Weekend Escape, …). Each style holds multiple **variants** — concrete trips with destination, recommended season, duration, and a full day-by-day itinerary. A user picks a variant they like, supplies a start date, and the backend materializes a new `Trip` owned by them with all days and activities copied from the template.
+A user starting from an empty dashboard has no inspiration. Explore Templates adds a discovery surface: a catalogue of pre-built trips grouped by **style** (Nightlife, Relax, Weekend Escape, …). Each style holds multiple **templates** — concrete trips with destination, recommended season, duration, and a full day-by-day itinerary. A user picks a template they like, supplies a start date, and the backend materializes a new `Trip` owned by them with all days and activities copied from the template.
 
 Three endpoints expose the catalogue:
-- **List styles:** `GET /explore/templates` — all style templates with summary info.
-- **Style detail:** `GET /explore/templates/{templateSlug}` — one style with its variant list.
-- **Variant detail:** `GET /explore/templates/{templateSlug}/variants/{variantSlug}` — full itinerary.
+- **List styles:** `GET /explore/styles` — all trip styles with summary info.
+- **Style detail:** `GET /explore/styles/{styleSlug}` — one style with its template list.
+- **Template detail:** `GET /explore/styles/{styleSlug}/templates/{templateSlug}` — full itinerary.
 
-One endpoint applies a variant:
-- **Apply:** `POST /explore/templates/{templateSlug}/variants/{variantSlug}/apply` — creates a new `Trip` owned by the caller.
+One endpoint applies a template:
+- **Apply:** `POST /explore/styles/{styleSlug}/templates/{templateSlug}/apply` — creates a new `Trip` owned by the caller.
 
 **Curation:** templates live in `src/main/resources/templates.json` and are loaded by a startup seeder. There are no admin CRUD endpoints today; the catalogue is editorial content shipped with the application.
 
-**Auth:** all endpoints require a JWT, consistent with the rest of the API.
+**Auth:** read endpoints (`GET`) are **public** — anonymous users can browse the catalogue. The apply endpoint (`POST`) requires a JWT because it creates a `Trip` owned by the caller. This matches discovery-surface conventions (browse is open, taking action requires an account).
 
 ## Entity Relationship Diagram
 
 ```
-TripTemplate ──< TemplateTrip ──< TemplateDay ──< TemplateActivity
-   (style)         (variant)         (day)          (activity)
+TripStyle ──< TripTemplate ──< TemplateDay ──< TemplateActivity
+ (style)      (template)        (day)           (activity)
 ```
 
-- One TripTemplate has many TemplateTrip variants.
-- One TemplateTrip has many TemplateDays.
+- One TripStyle has many TripTemplates.
+- One TripTemplate has many TemplateDays.
 - One TemplateDay has many TemplateActivities.
 
 Applied trips are independent copies — no FK links back to templates. Editing or deleting a template does not touch any user-owned `Trip`.
 
 ## Entities
 
-### TripTemplate (table: `trip_templates`)
+### TripStyle (table: `trip_styles`)
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -45,9 +45,9 @@ Applied trips are independent copies — no FK links back to templates. Editing 
 | displayOrder | Integer | not null — controls catalogue ordering |
 
 **Relationships:**
-- `variants` → OneToMany to TemplateTrip (cascade ALL, orphanRemoval), ordered by `displayOrder ASC`.
+- `templates` → OneToMany to TripTemplate (cascade ALL, orphanRemoval), ordered by `displayOrder ASC`.
 
-### TemplateTrip (table: `template_trips`)
+### TripTemplate (table: `trip_templates`)
 
 | Field | Type | Constraints |
 |-------|------|-------------|
@@ -60,11 +60,11 @@ Applied trips are independent copies — no FK links back to templates. Editing 
 | recommendedSeason | Season (enum) | not null, STRING |
 | imageUrl | String | nullable |
 | estimatedBudget | BigDecimal | precision=8, scale=2, nullable |
-| interests | Set\<Interest\> | @ElementCollection → `template_trip_interests` table |
+| interests | Set\<Interest\> | @ElementCollection → `trip_template_interests` table |
 | displayOrder | Integer | not null |
 
 **Relationships:**
-- `template` → ManyToOne to TripTemplate (LAZY, `template_id` FK, not null).
+- `style` → ManyToOne to TripStyle (LAZY, `style_id` FK, not null).
 - `days` → OneToMany to TemplateDay (cascade ALL, orphanRemoval), ordered by `dayNumber ASC`.
 
 ### TemplateDay (table: `template_days`)
@@ -76,7 +76,7 @@ Applied trips are independent copies — no FK links back to templates. Editing 
 | notes | String | nullable |
 
 **Relationships:**
-- `templateTrip` → ManyToOne to TemplateTrip (LAZY, `template_trip_id` FK, not null).
+- `tripTemplate` → ManyToOne to TripTemplate (LAZY, `trip_template_id` FK, not null).
 - `activities` → OneToMany to TemplateActivity (cascade ALL, orphanRemoval), ordered by `startTime ASC`.
 
 ### TemplateActivity (table: `template_activities`)
@@ -99,20 +99,20 @@ Applied trips are independent copies — no FK links back to templates. Editing 
 
 `SPRING` | `SUMMER` | `AUTUMN` | `WINTER` | `YEAR_ROUND`
 
-Used on `TemplateTrip.recommendedSeason` to capture when a variant is best done (e.g. Ibiza in `SUMMER`, a winter festival trip in `WINTER`).
+Used on `TripTemplate.recommendedSeason` to capture when a template is best done (e.g. Ibiza in `SUMMER`, a winter festival trip in `WINTER`).
 
 ### Interest (reused)
 
-The existing `Interest` enum (`CULTURE`, `FOOD`, `ADVENTURE`, `NATURE`, `NIGHTLIFE`, `SHOPPING`, `RELAXATION`, `HISTORY`) is reused on `TemplateTrip` via `@ElementCollection`, mirroring `Trip.interests`. When a variant is applied, its interests are copied into the new `Trip`.
+The existing `Interest` enum (`CULTURE`, `FOOD`, `ADVENTURE`, `NATURE`, `NIGHTLIFE`, `SHOPPING`, `RELAXATION`, `HISTORY`) is reused on `TripTemplate` via `@ElementCollection`, mirroring `Trip.interests`. When a template is applied, its interests are copied into the new `Trip`.
 
 ## Database Tables
 
 Hibernate `ddl-auto=update` creates these five tables automatically:
 
-1. **trip_templates** — style categories.
-2. **template_trips** — variants under each style.
-3. **template_trip_interests** — enum collection table (template_trip_id, interest).
-4. **template_days** — days within a variant.
+1. **trip_styles** — style categories.
+2. **trip_templates** — templates under each style.
+3. **trip_template_interests** — enum collection table (trip_template_id, interest).
+4. **template_days** — days within a template.
 5. **template_activities** — activities within a template day.
 
 ## Seeder
@@ -124,10 +124,10 @@ Hibernate `ddl-auto=update` creates these five tables automatically:
 **Truncate-and-reload on every startup.** Templates are not referenced by user data — applied trips are independent copies — so wiping is safe and simpler than upsert logic.
 
 Seeder steps (one `@Transactional` block):
-1. Read `classpath:templates.json` via Jackson into a `TripTemplateSeedData` POJO tree.
-2. Delete in order: template activities → template days → template trip interests → template trips → trip templates (children-first to honor FK constraints).
-3. Insert templates → variants → days → activities from the JSON.
-4. Log `Seeded N templates with M variants`.
+1. Read `classpath:templates.json` via Jackson into a `TripStyleSeedData` POJO tree.
+2. Delete in order: template activities → template days → trip template interests → trip templates → trip styles (children-first to honor FK constraints).
+3. Insert styles → templates → days → activities from the JSON.
+4. Log `Seeded N styles with M templates`.
 
 If the file is missing or malformed, log a warning and skip — application startup is not blocked. Endpoints will simply return an empty catalogue.
 
@@ -141,7 +141,7 @@ If the file is missing or malformed, log a warning and skip — application star
     "description": "Clubs, festivals and late-night cities.",
     "imageUrl": "...",
     "displayOrder": 1,
-    "variants": [
+    "templates": [
       {
         "slug": "ibiza-summer",
         "name": "Ibiza Summer Highlights",
@@ -167,7 +167,7 @@ If the file is missing or malformed, log a warning and skip — application star
 ]
 ```
 
-Initial content covers three styles: **Nightlife**, **Relax**, **Weekend Escape**, with at least one or two variants each.
+Initial content covers three styles: **Nightlife**, **Relax**, **Weekend Escape**, with at least one or two templates each.
 
 ## Architecture
 
@@ -175,47 +175,54 @@ Initial content covers three styles: **Nightlife**, **Relax**, **Weekend Escape*
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| `TripTemplate` / `TemplateTrip` / `TemplateDay` / `TemplateActivity` | `model/` | JPA entities for the catalogue |
+| `TripStyle` / `TripTemplate` / `TemplateDay` / `TemplateActivity` | `model/` | JPA entities for the catalogue |
 | `Season` | `model/Enums/Season.java` | Recommended-season enum |
-| `TripTemplateRepository` | `repository/TripTemplateRepository.java` | `findBySlug(String)` |
-| `TemplateTripRepository` | `repository/TemplateTripRepository.java` | `findBySlugAndTemplateId(String, Long)` |
+| `TripStyleRepository` | `repository/TripStyleRepository.java` | `findBySlug(String)` |
+| `TripTemplateRepository` | `repository/TripTemplateRepository.java` | `findBySlugAndStyleId(String, Long)` |
 | `TemplateDayRepository`, `TemplateActivityRepository` | `repository/` | Standard CRUD |
-| `TripTemplateService` | `service/TripTemplateService.java` | `listTemplates`, `getTemplate`, `getVariant`, `applyVariant` |
+| `TripTemplateService` | `service/TripTemplateService.java` | `listStyles`, `getStyle`, `getTemplate`, `applyTemplate` |
 | `TripTemplateSeeder` | `service/TripTemplateSeeder.java` | Loads `templates.json` on `ApplicationReadyEvent` |
-| `TripTemplateController` | `controller/TripTemplateController.java` | `/explore/templates` REST surface |
+| `TripTemplateController` | `controller/TripTemplateController.java` | `/explore` REST surface |
+| Response DTOs | `responses/TripStyleResponse.java`, `TripStyleDetailResponse.java`, `TripTemplateSummaryResponse.java`, `TripTemplateDetailResponse.java`, `TemplateDayResponse.java`, `TemplateActivityResponse.java` | JSON shapes returned by the read endpoints. `TripTemplateSummaryResponse` is the embedded shape inside `TripStyleDetailResponse.templates`. |
 | `ApplyTripTemplateDTO` | `DTO/ApplyTripTemplateDTO.java` | Request body for apply |
-| `TripTemplateSeedData` | `DTO/TripTemplateSeedData.java` | Jackson POJO matching `templates.json` |
-| Mappers | `mapper/TripTemplateMapper.java`, `TemplateTripMapper.java`, `TemplateDayMapper.java`, `TemplateActivityMapper.java` | Entity → response |
+| Seed POJOs | `DTO/seed/TripStyleSeedData.java`, `TripTemplateSeedData.java`, `TemplateDaySeedData.java`, `TemplateActivitySeedData.java` | Jackson POJO tree matching `templates.json`. Kept in a sub-package because they have no validation and are not request bodies. |
+| Mappers | `mapper/TripStyleMapper.java`, `TripTemplateMapper.java`, `TemplateDayMapper.java`, `TemplateActivityMapper.java` | Entity → response. Plain `@Component` classes (no MapStruct), matching existing `TripMapper` style. `TripStyleMapper` and `TripTemplateMapper` each expose `toSummary` and `toDetail` methods. |
 
 ### Apply Flow
 
-`TripTemplateService.applyVariant(templateSlug, variantSlug, dto, currentUser)` — `@Transactional`:
+`TripTemplateService.applyTemplate(styleSlug, templateSlug, dto, currentUser)` — `@Transactional`:
 
 ```
-Resolve template by slug                                          → 404 if missing
-Resolve variant by slug + parent template id                      → 404 if missing
-Build Trip:
-    name             = dto.name        ?? variant.name
-    description      = variant.description
-    destination      = variant.destination
-    startDate        = dto.startDate
-    endDate          = startDate.plusDays(durationDays - 1)
-    status           = PLANNING
-    budget           = dto.budget      ?? variant.estimatedBudget
-    interests        = new HashSet<>(variant.interests)
-tripRepository.save(trip)
+Resolve style by slug                                             → 404 if missing
+Resolve template by slug + parent style id                        → 404 if missing
+
+Build the Trip tree in memory (no save yet):
+    Trip.name        = dto.name        ?? template.name
+    Trip.description = template.description
+    Trip.destination = template.destination
+    Trip.startDate   = dto.startDate
+    Trip.endDate     = startDate.plusDays(durationDays - 1)
+    Trip.status      = PLANNING
+    Trip.budget      = dto.budget      ?? template.estimatedBudget
+    Trip.interests   = new HashSet<>(template.interests)
+    For each TemplateDay (in dayNumber order):
+        TripDay.dayNumber = sourceDay.dayNumber
+        TripDay.date      = startDate.plusDays(dayNumber - 1)
+        TripDay.notes     = sourceDay.notes
+        TripDay.trip      = trip
+        For each TemplateActivity:
+            Activity copies name/description/location/startTime/endTime
+            Activity.tripDay = newDay
+        Attach activities to newDay
+    Attach days to trip
+
+tripRepository.save(trip)   // JPA cascade saves days + activities in one go
 userTripRepository.save(UserTrip(user=currentUser, trip=trip, role=OWNER))
-For each TemplateDay (in dayNumber order):
-    create TripDay(dayNumber, date=startDate.plusDays(dayNumber-1), notes, trip)
-tripDayRepository.saveAll(...)
-For each new TripDay, for each source TemplateActivity:
-    create Activity(name, description, location, startTime, endTime, tripDay)
-activityRepository.saveAll(...)
 Publish TripEventRecorded(trip, currentUser, TRIP_CREATED, TRIP, trip.id, trip.name, null)
 return tripMapper.toResponse(trip)
 ```
 
-Days and activities are saved through the repositories directly (not through `TripDayService` / `ActivityService`) so that no per-row `DAY_ADDED` / `ACTIVITY_ADDED` events fire — applying a template should look like a single creation in the activity feed.
+The whole `Trip → TripDay → Activity` tree is persisted via JPA cascade on a single `tripRepository.save(trip)`. This bypasses `TripDayService` and `ActivityService` (which would otherwise publish per-row `DAY_ADDED` / `ACTIVITY_ADDED` events) — applying a template emits a single `TRIP_CREATED` event in the activity feed.
 
 ### Design Decisions
 
@@ -223,31 +230,31 @@ Days and activities are saved through the repositories directly (not through `Tr
 
 2. **Truncate-and-reload seeding** — applied trips are independent copies, so templates can be wiped on every boot without risking user data. This avoids the complexity of upsert-by-slug logic for nested children (days/activities have no stable identifier across edits). Cost is rewriting a few hundred rows on startup, which is negligible.
 
-3. **Two-level hierarchy: TripTemplate → TemplateTrip** — matches the user-facing concept ("Nightlife template *contains* Ibiza summer, Berlin winter festival, …"). A flat list with a style tag would lose the grouping that makes browsing meaningful.
+3. **Two-level hierarchy: TripStyle → TripTemplate** — matches the user-facing concept ("Nightlife style *contains* Ibiza summer, Berlin winter festival, …"). A flat list with a style tag would lose the grouping that makes browsing meaningful.
 
 4. **Separate template entities (not JSON column)** — mirrors `TripDay` / `Activity` so the apply flow is a clean entity-to-entity copy. No PostgreSQL-specific JSON type, queryable structure, normal Hibernate semantics.
 
 5. **No FK from `Trip` back to template** — applied trips are fully independent. Editing a template never affects existing user trips, and deleting a template never cascades into user data.
 
-6. **Single `TRIP_CREATED` event on apply** — going through repositories directly bypasses `TripDayService` and `ActivityService`, both of which publish per-row events. A single event keeps the activity feed readable when a template is applied.
+6. **Single `TRIP_CREATED` event on apply** — applying builds the `Trip → TripDay → Activity` tree in memory and persists it through one cascading `tripRepository.save(trip)`. Cascade goes through Hibernate's persistence layer, not through `TripDayService` / `ActivityService`, so the per-row `DAY_ADDED` / `ACTIVITY_ADDED` events those services would emit never fire. A single event keeps the activity feed readable when a template is applied.
 
-7. **Apply replicates ownership inline** — `TripTemplateService.applyVariant` builds the `UserTrip(role=OWNER)` row itself rather than calling into `TripService.createTrip`, because `createTrip` accepts a `CreateTripDTO` and would not know about the pre-built days/activities. The four lines of duplication are accepted as the simpler trade-off; if more flows need this, a shared helper can be extracted from `TripService`.
+7. **Apply replicates ownership inline** — `TripTemplateService.applyTemplate` builds the `UserTrip(role=OWNER)` row itself rather than calling into `TripService.createTrip`, because `createTrip` accepts a `CreateTripDTO` and would not know about the pre-built days/activities. The four lines of duplication are accepted as the simpler trade-off; if more flows need this, a shared helper can be extracted from `TripService`.
 
-8. **Slug-based URLs** — slugs are unique per template (and per variant within a template) and are stable across reseeds. URLs like `/explore/templates/nightlife/variants/ibiza-summer/apply` are human-readable; numeric IDs are not exposed.
+8. **Slug-based URLs** — slugs are unique per style (and per template within a style) and are stable across reseeds. URLs like `/explore/styles/nightlife/templates/ibiza-summer/apply` are human-readable; numeric IDs are not exposed.
 
-9. **`Season` enum, not free text** — fixed set of values is filterable and validatable. Special cases (specific events, exact dates) belong in the variant's `description`.
+9. **`Season` enum, not free text** — fixed set of values is filterable and validatable. Special cases (specific events, exact dates) belong in the template's `description`.
 
 ## API
 
-All endpoints require JWT authentication.
+`GET` endpoints are public; the `POST` apply endpoint requires JWT authentication. See the [Auth note](#overview) above.
 
-### List Templates
+### List Styles
 
 ```
-GET /explore/templates
+GET /explore/styles
 ```
 
-**Response:** `List<TripTemplateResponse>`
+**Response:** `List<TripStyleResponse>`
 
 ```json
 [
@@ -257,7 +264,7 @@ GET /explore/templates
     "name": "Nightlife",
     "description": "Clubs, festivals and late-night cities.",
     "imageUrl": "...",
-    "variantCount": 2
+    "templateCount": 2
   },
   {
     "id": 2,
@@ -265,18 +272,18 @@ GET /explore/templates
     "name": "Relax",
     "description": "Slow itineraries, beaches, quiet places.",
     "imageUrl": "...",
-    "variantCount": 2
+    "templateCount": 2
   }
 ]
 ```
 
-### Get Template
+### Get Style
 
 ```
-GET /explore/templates/{templateSlug}
+GET /explore/styles/{styleSlug}
 ```
 
-**Response:** `TripTemplateDetailResponse` — template fields plus a list of variant summaries (no day-level detail).
+**Response:** `TripStyleDetailResponse` — style fields plus a list of template summaries (no day-level detail).
 
 ```json
 {
@@ -285,7 +292,7 @@ GET /explore/templates/{templateSlug}
   "name": "Nightlife",
   "description": "Clubs, festivals and late-night cities.",
   "imageUrl": "...",
-  "variants": [
+  "templates": [
     {
       "id": 10,
       "slug": "ibiza-summer",
@@ -301,13 +308,13 @@ GET /explore/templates/{templateSlug}
 }
 ```
 
-### Get Variant
+### Get Template
 
 ```
-GET /explore/templates/{templateSlug}/variants/{variantSlug}
+GET /explore/styles/{styleSlug}/templates/{templateSlug}
 ```
 
-**Response:** `TemplateTripDetailResponse` — variant fields plus full days and activities.
+**Response:** `TripTemplateDetailResponse` — template fields plus full days and activities.
 
 ```json
 {
@@ -337,16 +344,16 @@ GET /explore/templates/{templateSlug}/variants/{variantSlug}
 ### Apply Template
 
 ```
-POST /explore/templates/{templateSlug}/variants/{variantSlug}/apply
+POST /explore/styles/{styleSlug}/templates/{templateSlug}/apply
 ```
 
 **Request body:** `ApplyTripTemplateDTO`
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| startDate | LocalDate | yes | Must be today or later |
-| name | String | no | Override variant name; defaults to `variant.name` |
-| budget | BigDecimal | no | Override estimated budget; defaults to `variant.estimatedBudget` |
+| startDate | LocalDate | yes | Must be today or later. Validated with `@NotNull` + `@FutureOrPresent`. |
+| name | String | no | Override template name; defaults to `template.name` |
+| budget | BigDecimal | no | Override estimated budget; defaults to `template.estimatedBudget` |
 
 **Authorization:** any authenticated user. The created `Trip` is owned by the caller (`UserTrip.role = OWNER`).
 
@@ -359,14 +366,14 @@ POST /explore/templates/{templateSlug}/variants/{variantSlug}/apply
 - Single `TripEvent(eventType=TRIP_CREATED, entityType=TRIP)` recorded — visible in the per-trip and dashboard activity feeds.
 
 **Error responses:**
-- `404` — unknown template slug, or unknown variant slug under that template.
-- `400` — `startDate` missing or in the past, or `endDate` before `startDate` (defensive: would only happen if duration is corrupted).
+- `404` (`ResourceNotFoundException`) — unknown style slug, or unknown template slug under that style. Handled centrally by `GlobalExceptionHandler`.
+- `400` — `startDate` missing or in the past (Bean Validation fails on `ApplyTripTemplateDTO`), or `endDate` before `startDate` (defensive: would only happen if duration is corrupted).
 
 ## Edge Cases
 
-1. **Missing or malformed `templates.json`** — seeder logs a warning and skips. App still starts; catalogue endpoints return empty list / 404. No exception escapes.
-2. **Re-seed after edit** — editing `templates.json` and restarting wipes and reloads the catalogue. User trips already created from a previous variant version are unaffected (independent copies).
-3. **Applying twice** — re-applying the same variant creates a second independent trip. Allowed by design; no uniqueness constraint between user and template.
-4. **Variant duration shorter than the day list in JSON** — seeder treats `durationDays` and `days.length` as independent fields. Authoring contract: keep them aligned. No runtime check today.
+1. **Missing or malformed `templates.json`** — seeder logs a warning and exits without touching the database. App still starts; the catalogue retains whatever it had before (empty on first boot, or the previous seed on subsequent boots). No exception escapes.
+2. **Re-seed after edit** — editing `templates.json` and restarting wipes and reloads the catalogue. User trips already created from a previous template version are unaffected (independent copies).
+3. **Applying twice** — re-applying the same template creates a second independent trip. Allowed by design; no uniqueness constraint between user and template.
+4. **Template duration shorter than the day list in JSON** — seeder treats `durationDays` and `days.length` as independent fields. Authoring contract: keep them aligned. No runtime check today.
 5. **Activity time ordering** — `@OrderBy("startTime ASC")` on `TemplateDay.activities` means null `startTime`s sort first; activities without times appear at the start of the day in the response.
-6. **Slug collisions in JSON** — duplicate template slug or duplicate variant slug under the same template will cause a unique-constraint violation at insert time and roll the seed transaction back. The seeder logs the failure and the app still starts (with no templates).
+6. **Slug collisions in JSON** — duplicate style slug or duplicate template slug under the same style will cause a unique-constraint violation at insert time. The seed transaction (truncate + insert in one atomic block) is rolled back, so the catalogue retains its previous state. The seeder logs the failure and the app still starts.

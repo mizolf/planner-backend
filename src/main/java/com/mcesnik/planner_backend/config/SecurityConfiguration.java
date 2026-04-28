@@ -2,6 +2,7 @@ package com.mcesnik.planner_backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,6 +36,7 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/signup", "/auth/login", "/auth/verify", "/auth/resend").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/explore/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
