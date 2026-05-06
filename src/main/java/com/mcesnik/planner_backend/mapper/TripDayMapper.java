@@ -16,6 +16,7 @@ public class TripDayMapper {
         return TripDay.builder()
                 .dayNumber(dto.getDayNumber())
                 .date(dto.getDate())
+                .title(dto.getTitle())
                 .notes(dto.getNotes())
                 .build();
     }
@@ -23,6 +24,7 @@ public class TripDayMapper {
     public void updateEntity(TripDay day, UpdateTripDayDTO dto) {
         if (dto.getDayNumber() != null) day.setDayNumber(dto.getDayNumber());
         if (dto.getDate() != null) day.setDate(dto.getDate());
+        if (dto.getTitle() != null) day.setTitle(dto.getTitle());
         if (dto.getNotes() != null) day.setNotes(dto.getNotes());
     }
 
@@ -31,6 +33,7 @@ public class TripDayMapper {
                 .id(day.getId())
                 .dayNumber(day.getDayNumber())
                 .date(day.getDate())
+                .title(day.getTitle())
                 .notes(day.getNotes())
                 .activities(activities)
                 .build();

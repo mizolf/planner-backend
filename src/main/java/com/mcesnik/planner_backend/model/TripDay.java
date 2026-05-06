@@ -27,6 +27,9 @@ public class TripDay {
     @Column(nullable = true)
     private String notes;
 
+    @Column(nullable = true, length = 255)
+    private String title;
+
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Activity> activities;
 

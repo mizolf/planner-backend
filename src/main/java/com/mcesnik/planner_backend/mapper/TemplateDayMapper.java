@@ -13,6 +13,7 @@ public class TemplateDayMapper {
     public TemplateDayResponse toResponse(TemplateDay day, List<TemplateActivityResponse> activities) {
         return TemplateDayResponse.builder()
                 .dayNumber(day.getDayNumber())
+                .title(day.getTitle())
                 .notes(day.getNotes())
                 .activities(activities)
                 .build();

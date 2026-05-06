@@ -18,4 +18,7 @@ public class UpdateTripDayDTO {
 
     @Size(max = 255, message = "Notes must be at most 255 characters")
     private String notes;
+
+    @Size(max = 255, message = "Title must be at most 255 characters")
+    private String title;
 }

@@ -127,6 +127,7 @@ public class TripTemplateSeeder {
     private TemplateDay buildDay(TemplateDaySeedData data, TripTemplate template) {
         TemplateDay day = TemplateDay.builder()
                 .dayNumber(data.dayNumber())
+                .title(data.title())
                 .notes(data.notes())
                 .tripTemplate(template)
                 .build();

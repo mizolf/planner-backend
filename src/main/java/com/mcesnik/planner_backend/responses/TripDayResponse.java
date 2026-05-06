@@ -14,6 +14,7 @@ public class TripDayResponse {
     private Long id;
     private Integer dayNumber;
     private LocalDate date;
+    private String title;
     private String notes;
     private List<ActivityResponse> activities;
 }

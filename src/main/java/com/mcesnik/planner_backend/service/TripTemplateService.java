@@ -131,6 +131,7 @@ public class TripTemplateService {
             TripDay newDay = TripDay.builder()
                     .dayNumber(sourceDay.getDayNumber())
                     .date(startDate.plusDays(sourceDay.getDayNumber() - 1))
+                    .title(sourceDay.getTitle())
                     .notes(sourceDay.getNotes())
                     .trip(trip)
                     .build();

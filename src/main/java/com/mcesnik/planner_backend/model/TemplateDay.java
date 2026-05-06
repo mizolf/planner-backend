@@ -22,6 +22,9 @@ public class TemplateDay {
 
     private String notes;
 
+    @Column(nullable = true, length = 255)
+    private String title;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_template_id", nullable = false)
     private TripTemplate tripTemplate;

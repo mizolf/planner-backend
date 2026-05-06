@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TemplateDayResponse {
     private Integer dayNumber;
+    private String title;
     private String notes;
     private List<TemplateActivityResponse> activities;
 }

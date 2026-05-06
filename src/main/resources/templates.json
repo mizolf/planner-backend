@@ -14,13 +14,17 @@
         "durationDays": 4,
         "recommendedSeason": "SUMMER",
         "imageUrl": null,
-        "estimatedBudget": 1200.00,
-        "interests": ["NIGHTLIFE", "FOOD"],
+        "estimatedBudget": 1200.0,
+        "interests": [
+          "NIGHTLIFE",
+          "FOOD"
+        ],
         "displayOrder": 1,
         "days": [
           {
             "dayNumber": 1,
-            "notes": "Arrival & Playa d'en Bossa",
+            "title": "Arrival & Playa d'en Bossa",
+            "notes": "Hydrate hard before the opening party — the sun is brutal until sunset. Save a fresh outfit for the club.",
             "activities": [
               {
                 "name": "Check-in",
@@ -47,7 +51,8 @@
           },
           {
             "dayNumber": 2,
-            "notes": "Beach + boat",
+            "title": "Beach + boat",
+            "notes": "Reef-safe SPF 50, sunglasses, and a refillable bottle. Keep the boat tip in cash.",
             "activities": [
               {
                 "name": "Beach day",
@@ -74,7 +79,8 @@
           },
           {
             "dayNumber": 3,
-            "notes": "Old town & Hï",
+            "title": "Old town & Hï",
+            "notes": "Cooler clothes for the Dalt Vila climb, club-ready by midnight. Bring ID for the Hï door.",
             "activities": [
               {
                 "name": "Dalt Vila walk",
@@ -101,7 +107,8 @@
           },
           {
             "dayNumber": 4,
-            "notes": "Recovery & departure",
+            "title": "Recovery & departure",
+            "notes": "Sleep in, light food, no surprises. Aim for check-out by noon to make the flight.",
             "activities": [
               {
                 "name": "Brunch by the sea",
@@ -129,13 +136,17 @@
         "durationDays": 3,
         "recommendedSeason": "AUTUMN",
         "imageUrl": null,
-        "estimatedBudget": 700.00,
-        "interests": ["NIGHTLIFE", "CULTURE"],
+        "estimatedBudget": 700.0,
+        "interests": [
+          "NIGHTLIFE",
+          "CULTURE"
+        ],
         "displayOrder": 2,
         "days": [
           {
             "dayNumber": 1,
-            "notes": "Arrival & warm-up",
+            "title": "Arrival & warm-up",
+            "notes": "Pack layers — Berlin runs cold even in autumn. Watergate is the easier door, save Berghain for tomorrow.",
             "activities": [
               {
                 "name": "Check-in & East Side Gallery",
@@ -162,7 +173,8 @@
           },
           {
             "dayNumber": 2,
-            "notes": "Recover, eat, dance",
+            "title": "Recover, eat, dance",
+            "notes": "Brunch slowly, museum-pace afternoon, then dress dark for Berghain. No phones, no cameras inside.",
             "activities": [
               {
                 "name": "Late breakfast",
@@ -189,7 +201,8 @@
           },
           {
             "dayNumber": 3,
-            "notes": "Sunday wind-down",
+            "title": "Sunday wind-down",
+            "notes": "Hydrate and eat carbs. Mauerpark is busiest mid-afternoon — go a bit earlier if you want a flea-market table.",
             "activities": [
               {
                 "name": "Mauerpark flea market",
@@ -226,13 +239,17 @@
         "durationDays": 5,
         "recommendedSeason": "YEAR_ROUND",
         "imageUrl": null,
-        "estimatedBudget": 3500.00,
-        "interests": ["RELAXATION", "NATURE"],
+        "estimatedBudget": 3500.0,
+        "interests": [
+          "RELAXATION",
+          "NATURE"
+        ],
         "displayOrder": 1,
         "days": [
           {
             "dayNumber": 1,
-            "notes": "Arrival & seaplane transfer",
+            "title": "Arrival & seaplane transfer",
+            "notes": "Customs at Malé can be slow. Pack swimwear in carry-on so you can change before the seaplane.",
             "activities": [
               {
                 "name": "Seaplane to resort",
@@ -252,7 +269,8 @@
           },
           {
             "dayNumber": 2,
-            "notes": "Snorkel day",
+            "title": "Snorkel day",
+            "notes": "Reef shoes help on the rougher patches. Stick to reef-safe sunscreen — corals are fragile here.",
             "activities": [
               {
                 "name": "House reef snorkel",
@@ -279,7 +297,8 @@
           },
           {
             "dayNumber": 3,
-            "notes": "Spa day",
+            "title": "Spa day",
+            "notes": "The whole point of today is to do nothing on purpose. Phones away, novels out.",
             "activities": [
               {
                 "name": "Couples massage",
@@ -299,7 +318,8 @@
           },
           {
             "dayNumber": 4,
-            "notes": "Sandbank picnic",
+            "title": "Sandbank picnic",
+            "notes": "The sandbank shifts with the tide and the boat doesn't wait. Hat, dry bag, and reef shoes.",
             "activities": [
               {
                 "name": "Sandbank trip",
@@ -319,7 +339,8 @@
           },
           {
             "dayNumber": 5,
-            "notes": "Departure",
+            "title": "Departure",
+            "notes": "Settle the bar tab at reception before the jetty. Late check-out is usually free if you ask the night before.",
             "activities": [
               {
                 "name": "Slow breakfast",
@@ -347,13 +368,18 @@
         "durationDays": 4,
         "recommendedSeason": "SPRING",
         "imageUrl": null,
-        "estimatedBudget": 900.00,
-        "interests": ["RELAXATION", "NATURE", "FOOD"],
+        "estimatedBudget": 900.0,
+        "interests": [
+          "RELAXATION",
+          "NATURE",
+          "FOOD"
+        ],
         "displayOrder": 2,
         "days": [
           {
             "dayNumber": 1,
-            "notes": "Settle in",
+            "title": "Settle in",
+            "notes": "Jet lag is real — keep day one light. Small cash bills for warungs and tips.",
             "activities": [
               {
                 "name": "Hotel arrival & yoga intro",
@@ -373,7 +399,8 @@
           },
           {
             "dayNumber": 2,
-            "notes": "Rice terraces & temple",
+            "title": "Rice terraces & temple",
+            "notes": "Modest shoulders and knees for the temple. The rented sarongs are fine, no need to buy.",
             "activities": [
               {
                 "name": "Sunrise yoga",
@@ -400,7 +427,8 @@
           },
           {
             "dayNumber": 3,
-            "notes": "Cooking class",
+            "title": "Cooking class",
+            "notes": "Empty stomach for class — there's a lot of tasting. Snap the recipes for home.",
             "activities": [
               {
                 "name": "Balinese cooking class",
@@ -420,7 +448,8 @@
           },
           {
             "dayNumber": 4,
-            "notes": "Last morning",
+            "title": "Last morning",
+            "notes": "Pack the night before so the morning is unhurried. Allow extra time for Denpasar traffic.",
             "activities": [
               {
                 "name": "Campuhan Ridge walk",
@@ -457,13 +486,18 @@
         "durationDays": 2,
         "recommendedSeason": "AUTUMN",
         "imageUrl": null,
-        "estimatedBudget": 350.00,
-        "interests": ["CULTURE", "HISTORY", "FOOD"],
+        "estimatedBudget": 350.0,
+        "interests": [
+          "CULTURE",
+          "HISTORY",
+          "FOOD"
+        ],
         "displayOrder": 1,
         "days": [
           {
             "dayNumber": 1,
-            "notes": "Old Town & castle",
+            "title": "Old Town & castle",
+            "notes": "Comfortable shoes — there are a lot of cobblestones and castle stairs. Reserve U Fleků a day ahead.",
             "activities": [
               {
                 "name": "Old Town Square walk",
@@ -504,7 +538,8 @@
           },
           {
             "dayNumber": 2,
-            "notes": "Jewish Quarter & river",
+            "title": "Jewish Quarter & river",
+            "notes": "Cash is useful for trdelník stalls and small museums. Arrive at the river cruise pier 15 minutes early.",
             "activities": [
               {
                 "name": "Jewish Quarter tour",
@@ -539,13 +574,18 @@
         "durationDays": 2,
         "recommendedSeason": "SUMMER",
         "imageUrl": null,
-        "estimatedBudget": 600.00,
-        "interests": ["NATURE", "RELAXATION", "FOOD"],
+        "estimatedBudget": 600.0,
+        "interests": [
+          "NATURE",
+          "RELAXATION",
+          "FOOD"
+        ],
         "displayOrder": 2,
         "days": [
           {
             "dayNumber": 1,
-            "notes": "Bellagio day",
+            "title": "Bellagio day",
+            "notes": "Get the daily ferry pass at the Como dock — it pays for itself by lunch. Book Ristorante Bilacus in advance.",
             "activities": [
               {
                 "name": "Ferry to Bellagio",
@@ -579,7 +619,8 @@
           },
           {
             "dayNumber": 2,
-            "notes": "Varenna & departure",
+            "title": "Varenna & departure",
+            "notes": "Sunday ferry timetables thin out — confirm the return run before the morning walk so you don't miss lunch.",
             "activities": [
               {
                 "name": "Varenna village walk",
