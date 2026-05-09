@@ -48,11 +48,6 @@ public class ActivityService {
         var activity = activityMapper.toEntity(dto);
         activity.setTripDay(day);
 
-        if (activity.getStartTime() != null && activity.getEndTime() != null
-                && activity.getEndTime().isBefore(activity.getStartTime())) {
-            throw new InvalidDateRangeException("End time must not be before start time");
-        }
-
         activity = activityRepository.save(activity);
 
         eventPublisher.publishEvent(new TripEventRecorded(
@@ -73,11 +68,6 @@ public class ActivityService {
         List<FieldChange> changes = changeDetector.detectActivityChanges(activity, dto);
 
         activityMapper.updateEntity(activity, dto);
-
-        if (activity.getStartTime() != null && activity.getEndTime() != null
-                && activity.getEndTime().isBefore(activity.getStartTime())) {
-            throw new InvalidDateRangeException("End time must not be before start time");
-        }
 
         activity = activityRepository.save(activity);
 
