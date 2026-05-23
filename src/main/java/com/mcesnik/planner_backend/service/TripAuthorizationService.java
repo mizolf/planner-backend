@@ -1,5 +1,7 @@
 package com.mcesnik.planner_backend.service;
 
+import com.mcesnik.planner_backend.exception.ForbiddenException;
+import com.mcesnik.planner_backend.exception.ResourceNotFoundException;
 import com.mcesnik.planner_backend.model.Activity;
 import com.mcesnik.planner_backend.model.Enums.TripRole;
 import com.mcesnik.planner_backend.model.Trip;
@@ -30,7 +32,7 @@ public class TripAuthorizationService {
     @Transactional(readOnly = true)
     public UserTrip validateMembership(Long tripId, User currentUser){
         return userTripRepository.findByUserIdAndTripId(currentUser.getId(), tripId)
-                .orElseThrow(() -> new RuntimeException("You are not a member of this trip"));
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
     }
 
     @Transactional(readOnly = true)
@@ -38,7 +40,7 @@ public class TripAuthorizationService {
         UserTrip userTrip = validateMembership(tripId, currentUser);
 
         if(userTrip.getRole() == TripRole.VIEWER){
-            throw new RuntimeException("You do not have permission to edit this trip");
+            throw new ForbiddenException("You do not have permission to edit this trip");
         }
         return userTrip;
     }
@@ -48,7 +50,7 @@ public class TripAuthorizationService {
         UserTrip userTrip = validateMembership(tripId, currentUser);
 
         if(userTrip.getRole() != TripRole.OWNER){
-            throw new RuntimeException("Only the trip owner can perform this action");
+            throw new ForbiddenException("Only the trip owner can perform this action");
         }
         return userTrip;
     }
