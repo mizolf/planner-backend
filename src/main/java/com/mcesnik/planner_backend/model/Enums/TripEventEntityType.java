@@ -4,5 +4,6 @@ public enum TripEventEntityType {
     TRIP,
     TRIP_DAY,
     ACTIVITY,
-    MEMBER
+    MEMBER,
+    INVITE
 }
