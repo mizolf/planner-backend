@@ -1,6 +1,5 @@
 package com.mcesnik.planner_backend.service;
 
-import com.mcesnik.planner_backend.DTO.AddTripMemberDTO;
 import com.mcesnik.planner_backend.DTO.UpdateTripMemberDTO;
 import com.mcesnik.planner_backend.event.FieldChange;
 import com.mcesnik.planner_backend.event.TripEventRecorded;
@@ -11,8 +10,6 @@ import com.mcesnik.planner_backend.model.Enums.TripRole;
 import com.mcesnik.planner_backend.model.Trip;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.model.UserTrip;
-import com.mcesnik.planner_backend.repository.TripRepository;
-import com.mcesnik.planner_backend.repository.UserRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
 import com.mcesnik.planner_backend.responses.TripMemberResponse;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,52 +21,31 @@ import java.util.List;
 @Service
 public class TripMemberService {
     private final UserTripRepository userTripRepository;
-    private final UserRepository userRepository;
-    private final TripRepository tripRepository;
     private final UserTripMapper userTripMapper;
     private final TripAuthorizationService authorizationService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public TripMemberService(UserTripRepository userTripRepository, UserRepository userRepository, TripRepository tripRepository, UserTripMapper userTripMapper, TripAuthorizationService authorizationService, ApplicationEventPublisher eventPublisher) {
+    public TripMemberService(UserTripRepository userTripRepository, UserTripMapper userTripMapper, TripAuthorizationService authorizationService, ApplicationEventPublisher eventPublisher) {
         this.userTripRepository = userTripRepository;
-        this.userRepository = userRepository;
-        this.tripRepository = tripRepository;
         this.userTripMapper = userTripMapper;
         this.authorizationService = authorizationService;
         this.eventPublisher = eventPublisher;
     }
 
-    @Transactional
-    public TripMemberResponse addMember(Long tripId, AddTripMemberDTO dto, User currentUser) {
-        authorizationService.validateOwner(tripId, currentUser);
-
-        if (dto.getRole() == TripRole.OWNER) {
-            throw new RuntimeException("Cannot assign OWNER role to a new member");
-        }
-
-        User targetUser = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + dto.getEmail()));
-
-        if (userTripRepository.existsByUserIdAndTripId(targetUser.getId(), tripId)) {
-            throw new RuntimeException("User is already a member of this trip");
-        }
-
-        Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new RuntimeException("Trip not found"));
-
+    public UserTrip materializeMembership(Trip trip, User user, TripRole role, User actor) {
         UserTrip userTrip = UserTrip.builder()
-                .user(targetUser)
+                .user(user)
                 .trip(trip)
-                .role(dto.getRole())
+                .role(role)
                 .build();
         userTrip = userTripRepository.save(userTrip);
 
         eventPublisher.publishEvent(new TripEventRecorded(
-                trip, currentUser,
+                trip, actor,
                 TripEventType.MEMBER_ADDED, TripEventEntityType.MEMBER,
-                targetUser.getId(), targetUser.getFullName(), null));
+                user.getId(), user.getFullName(), null));
 
-        return userTripMapper.toResponse(userTrip);
+        return userTrip;
     }
 
     @Transactional

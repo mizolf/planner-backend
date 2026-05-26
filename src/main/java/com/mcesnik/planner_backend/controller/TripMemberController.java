@@ -1,12 +1,10 @@
 package com.mcesnik.planner_backend.controller;
 
-import com.mcesnik.planner_backend.DTO.AddTripMemberDTO;
 import com.mcesnik.planner_backend.DTO.UpdateTripMemberDTO;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.responses.TripMemberResponse;
 import com.mcesnik.planner_backend.service.TripMemberService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,11 +17,6 @@ public class TripMemberController {
 
     public TripMemberController(TripMemberService tripMemberService) {
         this.tripMemberService = tripMemberService;
-    }
-
-    @PostMapping
-    public ResponseEntity<TripMemberResponse> addMember(@PathVariable Long tripId, @Valid @RequestBody AddTripMemberDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(tripMemberService.addMember(tripId, dto, getCurrentUser()));
     }
 
     @PutMapping("/{userId}")
