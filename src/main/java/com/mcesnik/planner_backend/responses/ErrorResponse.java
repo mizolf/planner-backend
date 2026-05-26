@@ -12,12 +12,20 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
     private int status;
+    private String code;
     private String message;
     private Map<String, String> fieldErrors;
     private LocalDateTime timestamp;
 
     public ErrorResponse(int status, String message) {
         this.status = status;
+        this.message = message;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public ErrorResponse(int status, String code, String message) {
+        this.status = status;
+        this.code = code;
         this.message = message;
         this.timestamp = LocalDateTime.now();
     }

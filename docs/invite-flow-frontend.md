@@ -9,6 +9,7 @@ Kratki priručnik za frontend pri integraciji invite API-ja. Pokriva URL-ove, ob
 - **3 invitee-facing** pod `/me/invites` (list / accept / decline) — bilo koji ulogiran user, ali email mora odgovarati emailu na invite-u.
 - Invite ima 5 statusa: `PENDING`, `ACCEPTED`, `DECLINED`, `EXPIRED`, `CANCELLED`. Samo `PENDING` se može mijenjati.
 - Default expiry = **7 dana** od kreiranja (konfigurabilno preko `app.invite.expiry-days`).
+- **409 Conflict odgovori uvijek imaju `code` polje** za stabilan programatski match (npr. `CONCURRENT_MODIFICATION` za retry-safe, `INVITE_NOT_PENDING` za "već procesirano"). **Ne match-aj po `message`** — poruke su informativne i mogu se mijenjati.
 - Phase 1 = in-app only. **Nema email notifikacija**, invitee vidi pozive tek kad otvori app.
 - Direktni `POST /trips/{tripId}/members` više **ne postoji** — članstvo se dodaje isključivo preko invite + accept toka.
 
@@ -51,6 +52,33 @@ Bez tokena svi endpointi vraćaju 403 (Spring Security default).
   1. Scheduled cron job (dnevno u 04:00) prelazi sve `PENDING` invite-e gdje je `expiresAt < now`.
   2. Lazy expiry u `GET /me/invites` — pri svakom dohvaćanju, expired PENDING se filtrira van i flipa u EXPIRED.
   3. Eager check u `POST /me/invites/{inviteId}/accept` — ako je expired, flipa u EXPIRED i vraća 409.
+
+## Error codes (409 Conflict)
+
+Svaki 409 odgovor nosi stabilan `code` u response body-ju koji ne mijenja vrijednost između verzija. **Match po `code`**, ne po `message` — poruke su informativne i mogu se mijenjati (lokalizacija, refactor).
+
+| `code` | Što znači | Retry safe? | UX preporuka |
+|--------|-----------|-------------|--------------|
+| `CONCURRENT_MODIFICATION` | Optimistic-lock konflikt — netko drugi (ili drugi tab) je istovremeno mijenjao isti invite | ✅ **DA** | Auto-retry tiho (1–2 pokušaja); ako i dalje fail-a, prikaži generičku grešku |
+| `SELF_INVITE` | Owner pokušava pozvati sam sebe | ❌ ne | Inline form error "Ne možeš pozvati sebe" |
+| `ALREADY_MEMBER` | Target user je već član trip-a | ❌ ne | Inline form error "Ovaj korisnik je već član" |
+| `INVITE_NOT_PENDING` | Invite je već u terminal stanju (ACCEPTED / DECLINED / CANCELLED / EXPIRED) — netko ga je već procesirao | ❌ ne | Refresh listu, info toast "Invite je već obrađen" |
+| `INVITE_EXPIRED` | Invite je istekao između trenutka kad ga je user vidio i trenutka kad je kliknuo accept | ❌ ne | Refresh listu, info toast "Ovaj poziv je istekao" |
+
+**Retry pattern u Angular HTTP interceptoru** (ili gdje god rukujete HTTP greškama):
+
+```typescript
+catchError((err: HttpErrorResponse) => {
+  if (err.status === 409 && err.error?.code === 'CONCURRENT_MODIFICATION') {
+    // safe retry — drugi pokušaj će vjerojatno naći invite u terminalnom stanju
+    // i tretirati kao success
+    return retryRequest();
+  }
+  return throwError(() => err);
+})
+```
+
+> ⚠️ Ne match-aj na `err.error?.message?.includes('Concurrent')` — ako sutra promijenimo poruku u "Optimistic lock conflict, please retry", retry tiho prestane raditi i user vidi error umjesto auto-retry-a. Stabilan ugovor je `code` polje, ne tekst poruke.
 
 ## Endpoint reference
 
@@ -100,8 +128,8 @@ Kreira novi `PENDING` invite za target email. Ako PENDING invite već postoji za
 | 400 | Validation fail | `{"fieldErrors":{"email":"Invalid email format"},"message":"Validation failed","status":400}` |
 | 403 | Caller nije OWNER | `{"status":403,"message":"You don't have permission to manage this trip"}` |
 | 404 | Trip ne postoji ili user s tim emailom nije registriran | `{"status":404,"message":"User with this email is not registered"}` |
-| 409 | Invite samog sebe | `{"status":409,"message":"You cannot invite yourself"}` |
-| 409 | Target user je već član trip-a | `{"status":409,"message":"User is already a member of this trip"}` |
+| 409 | Invite samog sebe | `{"status":409,"code":"SELF_INVITE","message":"You cannot invite yourself"}` |
+| 409 | Target user je već član trip-a | `{"status":409,"code":"ALREADY_MEMBER","message":"User is already a member of this trip"}` |
 
 ---
 
@@ -166,7 +194,7 @@ Owner opoziva PENDING invite. Status se prebacuje u `CANCELLED`, `revokedBy` se 
 |--------|--------|
 | 403 | Caller nije OWNER |
 | 404 | Invite ne postoji ili ne pripada datom trip-u |
-| 409 | Invite nije u PENDING statusu (`Only pending invites can be cancelled`) |
+| 409 | Invite nije u PENDING statusu — `code: INVITE_NOT_PENDING` |
 
 ---
 
@@ -220,9 +248,9 @@ Frontend obično nakon 204 napravi navigaciju na `/trips/{tripId}` da prikaže n
 | 403 | Email se ne poklapa | `{"status":403,"message":"This invite is not for you"}` |
 | 403 | User još nije verificiran email (`enabled=false`) | `{"status":403,"message":"Verify your email before accepting invites"}` |
 | 404 | Invite ne postoji | `{"status":404,"message":"Invite not found"}` |
-| 409 | Invite više nije PENDING | `{"status":409,"message":"Invite is no longer pending"}` |
-| 409 | Invite je istekao (server flipa u EXPIRED prije bacanja) | `{"status":409,"message":"Invite has expired"}` |
-| 409 | Optimistic lock — dva paralelna accept-a istog invite-a | `{"status":409,"message":"Concurrent modification — please retry"}` |
+| 409 | Invite više nije PENDING | `{"status":409,"code":"INVITE_NOT_PENDING","message":"Invite is no longer pending"}` |
+| 409 | Invite je istekao (server flipa u EXPIRED prije bacanja) | `{"status":409,"code":"INVITE_EXPIRED","message":"Invite has expired"}` |
+| 409 | Optimistic lock — dva paralelna accept-a istog invite-a | `{"status":409,"code":"CONCURRENT_MODIFICATION","message":"Concurrent modification — please retry"}` |
 
 ---
 
@@ -243,7 +271,7 @@ Odbija invite. Status → `DECLINED`, `respondedAt` se popunjava, nikakav UserTr
 |--------|--------|
 | 403 | Email se ne poklapa |
 | 404 | Invite ne postoji |
-| 409 | Invite više nije PENDING |
+| 409 | Invite više nije PENDING — `code: INVITE_NOT_PENDING` |
 
 ## TypeScript interfaces
 
@@ -289,8 +317,16 @@ export interface MyInviteResponse {
 
 Error response shape je isti kao i drugdje u app-u (`ErrorResponse`):
 ```typescript
+export type InviteErrorCode =
+  | 'CONCURRENT_MODIFICATION'
+  | 'SELF_INVITE'
+  | 'ALREADY_MEMBER'
+  | 'INVITE_NOT_PENDING'
+  | 'INVITE_EXPIRED';
+
 export interface ErrorResponse {
   status: number;
+  code?: InviteErrorCode | string;       // popunjeno na 409; drugi handleri ga mogu izostaviti
   message: string;
   fieldErrors?: Record<string, string>;  // samo na 400
   timestamp?: string;
@@ -323,15 +359,16 @@ export interface ErrorResponse {
 4. Buttons "Accept" i "Decline":
    - Accept → `POST /me/invites/{inviteId}/accept` → 204 → refresh liste + redirect na `/trips/{tripId}`.
    - Decline → `POST /me/invites/{inviteId}/decline` → 204 → refresh liste, ostani na stranici.
-5. Ako accept vrati 409 "Concurrent modification" → prikazati "Pokušaj ponovno" i ne smatrati greškom — retry je legitimna akcija.
-6. Ako accept vrati 403 "Verify your email" → linkati na resend-verification flow.
+5. Ako accept vrati 409 sa `code === 'CONCURRENT_MODIFICATION'` → auto-retry (1–2 pokušaja); ako i dalje fail-a, prikaži generičku grešku. Ne tretirati kao trajni error.
+6. Ako accept vrati 409 sa `code === 'INVITE_NOT_PENDING'` ili `'INVITE_EXPIRED'` → refresh `GET /me/invites` (invite je već procesiran ili istekao između prikaza liste i klika).
+7. Ako accept vrati 403 "Verify your email" → linkati na resend-verification flow.
 
 ## Stvari na koje treba paziti
 
 1. **Email case-insensitive** — backend normalizira email na lowercase pri spremanju. Slanje `User@Example.com` se trimat će na `user@example.com`. Frontend može slati u bilo kojem case-u.
 2. **Resend = isti endpoint** — frontend ne mora razlikovati "create" od "resend"; `POST /trips/{tripId}/invites` će prepoznati postojeći PENDING invite za isti `(trip, email)` i update-ati ga. Token i expiry se resetiraju.
 3. **Lazy expiry** — `GET /me/invites` već automatski filtrira out istekle PENDING-e. Klijent ne mora računati `expiresAt < now` na response-u. Ako želi prikazati "ističe za X" kao countdown, koristi `expiresAt` polje.
-4. **Optimistic lock 409** — accept može vratiti 409 zbog konkurentne modifikacije (drugi prozor istog user-a, double-click). Tretirati kao "retry safe" — pokušati još jednom, ne kao trajni error.
+4. **Optimistic lock 409** — accept može vratiti 409 zbog konkurentne modifikacije (drugi prozor istog user-a, double-click). Tretirati kao "retry safe" — pokušati još jednom, ne kao trajni error. **Match po `err.error?.code === 'CONCURRENT_MODIFICATION'`**, ne po tekstu poruke (vidi sekciju Error codes).
 5. **`tripDestination` može biti `null`** — trip-ovi ne moraju imati destinaciju. Frontend mora handle-ati taj prikaz.
 6. **`inviterName` može biti "Deleted user"** — ako je inviter user obrisan, mapper renderira string `"Deleted user"`. Frontend ne mora posebno provjeravati — samo render-aj polje.
 7. **No email notifications (Phase 1)** — invitee mora otvoriti app da vidi poziv. Frontend bi trebao osigurati da se `GET /me/invites` poziva pri svakom login-u / app foreground / pull-to-refresh.

@@ -72,14 +72,14 @@ public class TripInviteService {
         String email = dto.getEmail().toLowerCase(Locale.ROOT);
 
         if (email.equalsIgnoreCase(currentUser.getEmail())) {
-            throw new InviteConflictException("You cannot invite yourself");
+            throw new InviteConflictException(InviteConflictException.Code.SELF_INVITE, "You cannot invite yourself");
         }
 
         User targetUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User with this email is not registered"));
 
         if (userTripRepository.existsByUserIdAndTripId(targetUser.getId(), tripId)) {
-            throw new InviteConflictException("User is already a member of this trip");
+            throw new InviteConflictException(InviteConflictException.Code.ALREADY_MEMBER, "User is already a member of this trip");
         }
 
         Trip trip = tripRepository.findById(tripId)
@@ -142,7 +142,7 @@ public class TripInviteService {
         }
 
         if (invite.getStatus() != InviteStatus.PENDING) {
-            throw new InviteConflictException("Only pending invites can be cancelled");
+            throw new InviteConflictException(InviteConflictException.Code.INVITE_NOT_PENDING, "Only pending invites can be cancelled");
         }
 
         invite.setStatus(InviteStatus.CANCELLED);
@@ -187,7 +187,7 @@ public class TripInviteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invite not found"));
 
         if (invite.getStatus() != InviteStatus.PENDING) {
-            throw new InviteConflictException("Invite is no longer pending");
+            throw new InviteConflictException(InviteConflictException.Code.INVITE_NOT_PENDING, "Invite is no longer pending");
         }
 
         Instant now = Instant.now();
@@ -199,7 +199,7 @@ public class TripInviteService {
                     invite.getTrip(), null,
                     TripEventType.INVITE_EXPIRED, TripEventEntityType.INVITE,
                     invite.getId(), invite.getEmail(), null));
-            throw new InviteConflictException("Invite has expired");
+            throw new InviteConflictException(InviteConflictException.Code.INVITE_EXPIRED, "Invite has expired");
         }
 
         if (!invite.getEmail().equalsIgnoreCase(currentUser.getEmail())) {
@@ -234,7 +234,7 @@ public class TripInviteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invite not found"));
 
         if (invite.getStatus() != InviteStatus.PENDING) {
-            throw new InviteConflictException("Invite is no longer pending");
+            throw new InviteConflictException(InviteConflictException.Code.INVITE_NOT_PENDING, "Invite is no longer pending");
         }
 
         if (!invite.getEmail().equalsIgnoreCase(currentUser.getEmail())) {
