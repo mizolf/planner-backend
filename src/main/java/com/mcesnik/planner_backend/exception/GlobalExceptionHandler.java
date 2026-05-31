@@ -94,6 +94,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler(MemberConflictException.class)
+    public ResponseEntity<ErrorResponse> handleMemberConflict(MemberConflictException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getCode().name(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
         ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), "CONCURRENT_MODIFICATION", "Concurrent modification — please retry");

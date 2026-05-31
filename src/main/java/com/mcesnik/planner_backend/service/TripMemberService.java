@@ -3,6 +3,7 @@ package com.mcesnik.planner_backend.service;
 import com.mcesnik.planner_backend.DTO.UpdateTripMemberDTO;
 import com.mcesnik.planner_backend.event.FieldChange;
 import com.mcesnik.planner_backend.event.TripEventRecorded;
+import com.mcesnik.planner_backend.exception.MemberConflictException;
 import com.mcesnik.planner_backend.mapper.UserTripMapper;
 import com.mcesnik.planner_backend.model.Enums.TripEventEntityType;
 import com.mcesnik.planner_backend.model.Enums.TripEventType;
@@ -107,5 +108,23 @@ public class TripMemberService {
                 targetUser.getId(), targetUser.getFullName(), null));
 
         userTripRepository.delete(userTrip);
+    }
+
+    @Transactional
+    public void leaveTrip(Long tripId, User currentUser) {
+        UserTrip membership = authorizationService.validateMembership(tripId, currentUser);
+
+        if (membership.getRole() == TripRole.OWNER) {
+            throw new MemberConflictException(
+                    MemberConflictException.Code.OWNER_CANNOT_LEAVE,
+                    "The trip owner cannot leave; transfer ownership or delete the trip");
+        }
+
+        eventPublisher.publishEvent(new TripEventRecorded(
+                membership.getTrip(), currentUser,
+                TripEventType.MEMBER_LEFT, TripEventEntityType.MEMBER,
+                currentUser.getId(), currentUser.getFullName(), null));
+
+        userTripRepository.delete(membership);
     }
 }

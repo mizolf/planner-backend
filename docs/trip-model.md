@@ -161,6 +161,7 @@ All endpoints are under `/trips` and require authentication (JWT Bearer token).
 | POST | `/trips/{tripId}/members` | AddTripMemberDTO | TripMemberResponse | Owner |
 | PUT | `/trips/{tripId}/members/{userId}` | UpdateTripMemberDTO | TripMemberResponse | Owner |
 | DELETE | `/trips/{tripId}/members/{userId}` | — | message | Owner |
+| DELETE | `/trips/{tripId}/members/me` | — | 204 | Member (non-owner; owner gets 409) |
 
 ## Response Objects
 

@@ -24,6 +24,12 @@ public class TripMemberController {
         return ResponseEntity.ok(tripMemberService.updateMemberRole(tripId, userId, dto, getCurrentUser()));
     }
 
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> leaveTrip(@PathVariable Long tripId) {
+        tripMemberService.leaveTrip(tripId, getCurrentUser());
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> removeMember(@PathVariable Long tripId, @PathVariable Long userId) {
         tripMemberService.removeMember(tripId, userId, getCurrentUser());
