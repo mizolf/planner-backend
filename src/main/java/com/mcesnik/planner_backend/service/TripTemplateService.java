@@ -12,7 +12,6 @@ import com.mcesnik.planner_backend.model.Activity;
 import com.mcesnik.planner_backend.model.Enums.TripEventEntityType;
 import com.mcesnik.planner_backend.model.Enums.TripEventType;
 import com.mcesnik.planner_backend.model.Enums.TripRole;
-import com.mcesnik.planner_backend.model.Enums.TripStatus;
 import com.mcesnik.planner_backend.model.TemplateActivity;
 import com.mcesnik.planner_backend.model.TemplateDay;
 import com.mcesnik.planner_backend.model.Trip;
@@ -119,7 +118,6 @@ public class TripTemplateService {
                 .destination(template.getDestination())
                 .startDate(startDate)
                 .endDate(endDate)
-                .status(TripStatus.PLANNING)
                 .budget(dto.getBudget() != null ? dto.getBudget() : template.getEstimatedBudget())
                 .interests(template.getInterests() == null
                         ? new HashSet<>()

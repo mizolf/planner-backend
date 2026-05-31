@@ -1,7 +1,6 @@
 package com.mcesnik.planner_backend.model;
 
 import com.mcesnik.planner_backend.model.Enums.Interest;
-import com.mcesnik.planner_backend.model.Enums.TripStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,10 +37,6 @@ public class Trip {
 
     @Column(name = "end_date")
     private LocalDate endDate;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TripStatus status = TripStatus.PLANNING;
 
     @Column(precision = 8, scale = 2)
     private BigDecimal budget;

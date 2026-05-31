@@ -1,7 +1,6 @@
 package com.mcesnik.planner_backend.DTO;
 
 import com.mcesnik.planner_backend.model.Enums.Interest;
-import com.mcesnik.planner_backend.model.Enums.TripStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -27,8 +26,6 @@ public class UpdateTripDTO {
     private LocalDate startDate;
 
     private LocalDate endDate;
-
-    private TripStatus status;
 
     @DecimalMin(value = "0", message = "Budget must be non-negative")
     private BigDecimal budget;

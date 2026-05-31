@@ -24,7 +24,6 @@ public class ChangeDetector {
         compare(changes, "destination", trip.getDestination(), dto.getDestination());
         compare(changes, "startDate", trip.getStartDate(), dto.getStartDate());
         compare(changes, "endDate", trip.getEndDate(), dto.getEndDate());
-        compare(changes, "status", trip.getStatus(), dto.getStatus());
         compareBigDecimal(changes, "budget", trip.getBudget(), dto.getBudget());
         compareCollection(changes, "interests", trip.getInterests(), dto.getInterests());
         return changes;

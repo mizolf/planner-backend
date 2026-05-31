@@ -2,14 +2,15 @@ package com.mcesnik.planner_backend.mapper;
 
 import com.mcesnik.planner_backend.DTO.CreateTripDTO;
 import com.mcesnik.planner_backend.DTO.UpdateTripDTO;
-import com.mcesnik.planner_backend.model.Enums.TripStatus;
 import com.mcesnik.planner_backend.model.Trip;
 import com.mcesnik.planner_backend.responses.TripDetailResponse;
 import com.mcesnik.planner_backend.responses.TripDayResponse;
 import com.mcesnik.planner_backend.responses.TripMemberResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
+import com.mcesnik.planner_backend.util.TripStatusCalculator;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -24,7 +25,6 @@ public class TripMapper {
                 .endDate(dto.getEndDate())
                 .budget(dto.getBudget())
                 .interests(dto.getInterests())
-                .status(TripStatus.PLANNING)
                 .build();
     }
 
@@ -34,7 +34,6 @@ public class TripMapper {
         if (dto.getDestination() != null) trip.setDestination(dto.getDestination());
         if (dto.getStartDate() != null) trip.setStartDate(dto.getStartDate());
         if (dto.getEndDate() != null) trip.setEndDate(dto.getEndDate());
-        if (dto.getStatus() != null) trip.setStatus(dto.getStatus());
         if (dto.getBudget() != null) trip.setBudget(dto.getBudget());
         if (dto.getInterests() != null) trip.setInterests(dto.getInterests());
     }
@@ -47,7 +46,7 @@ public class TripMapper {
                 .destination(trip.getDestination())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
-                .status(trip.getStatus())
+                .status(TripStatusCalculator.calculate(trip.getStartDate(), trip.getEndDate(), LocalDate.now()))
                 .budget(trip.getBudget())
                 .interests(trip.getInterests())
                 .createdAt(trip.getCreatedAt())
@@ -63,7 +62,7 @@ public class TripMapper {
         response.setDestination(trip.getDestination());
         response.setStartDate(trip.getStartDate());
         response.setEndDate(trip.getEndDate());
-        response.setStatus(trip.getStatus());
+        response.setStatus(TripStatusCalculator.calculate(trip.getStartDate(), trip.getEndDate(), LocalDate.now()));
         response.setBudget(trip.getBudget());
         response.setInterests(trip.getInterests());
         response.setCreatedAt(trip.getCreatedAt());
