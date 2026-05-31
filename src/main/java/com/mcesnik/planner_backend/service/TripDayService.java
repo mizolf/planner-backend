@@ -15,6 +15,7 @@ import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.repository.ActivityRepository;
 import com.mcesnik.planner_backend.repository.TripDayRepository;
 import com.mcesnik.planner_backend.repository.TripRepository;
+import com.mcesnik.planner_backend.exception.DayConflictException;
 import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
 import com.mcesnik.planner_backend.responses.TripDayResponse;
 import org.springframework.context.ApplicationEventPublisher;
@@ -61,6 +62,12 @@ public class TripDayService {
             }
         }
 
+        if (day.getDate() != null && tripDayRepository.existsByTripIdAndDate(tripId, day.getDate())) {
+            throw new DayConflictException(
+                    DayConflictException.Code.DUPLICATE_DATE,
+                    "Another day already uses this date");
+        }
+
         day = tripDayRepository.save(day);
 
         eventPublisher.publishEvent(new TripEventRecorded(
@@ -85,6 +92,12 @@ public class TripDayService {
             if (day.getDate().isBefore(trip.getStartDate()) || day.getDate().isAfter(trip.getEndDate())) {
                 throw new InvalidDateRangeException("Day date must be within the trip date range");
             }
+        }
+
+        if (day.getDate() != null && tripDayRepository.existsByTripIdAndDateAndIdNot(tripId, day.getDate(), dayId)) {
+            throw new DayConflictException(
+                    DayConflictException.Code.DUPLICATE_DATE,
+                    "Another day already uses this date");
         }
 
         day = tripDayRepository.save(day);
