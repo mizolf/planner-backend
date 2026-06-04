@@ -2,6 +2,7 @@ package com.mcesnik.planner_backend.controller;
 
 import com.mcesnik.planner_backend.DTO.ApplyTripTemplateDTO;
 import com.mcesnik.planner_backend.model.User;
+import com.mcesnik.planner_backend.responses.FeaturedTemplateResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
 import com.mcesnik.planner_backend.responses.TripStyleDetailResponse;
 import com.mcesnik.planner_backend.responses.TripStyleResponse;
@@ -34,6 +35,11 @@ public class TripTemplateController {
     @GetMapping("/styles")
     public ResponseEntity<List<TripStyleResponse>> listStyles() {
         return ResponseEntity.ok(templateService.listStyles());
+    }
+
+    @GetMapping("/templates")
+    public ResponseEntity<List<FeaturedTemplateResponse>> listTemplates() {
+        return ResponseEntity.ok(templateService.listTemplates());
     }
 
     @GetMapping("/styles/{styleSlug}")

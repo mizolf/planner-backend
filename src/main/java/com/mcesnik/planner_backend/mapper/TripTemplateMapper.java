@@ -1,6 +1,7 @@
 package com.mcesnik.planner_backend.mapper;
 
 import com.mcesnik.planner_backend.model.TripTemplate;
+import com.mcesnik.planner_backend.responses.FeaturedTemplateResponse;
 import com.mcesnik.planner_backend.responses.TemplateDayResponse;
 import com.mcesnik.planner_backend.responses.TripTemplateDetailResponse;
 import com.mcesnik.planner_backend.responses.TripTemplateSummaryResponse;
@@ -22,6 +23,23 @@ public class TripTemplateMapper {
                 .imageUrl(template.getImageUrl())
                 .estimatedBudget(template.getEstimatedBudget())
                 .interests(template.getInterests())
+                .build();
+    }
+
+    public FeaturedTemplateResponse toFeatured(TripTemplate template) {
+        return FeaturedTemplateResponse.builder()
+                .id(template.getId())
+                .slug(template.getSlug())
+                .name(template.getName())
+                .description(template.getDescription())
+                .destination(template.getDestination())
+                .durationDays(template.getDurationDays())
+                .recommendedSeason(template.getRecommendedSeason())
+                .imageUrl(template.getImageUrl())
+                .estimatedBudget(template.getEstimatedBudget())
+                .interests(template.getInterests())
+                .styleSlug(template.getStyle().getSlug())
+                .styleName(template.getStyle().getName())
                 .build();
     }
 

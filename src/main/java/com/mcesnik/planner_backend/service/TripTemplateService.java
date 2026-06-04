@@ -24,6 +24,7 @@ import com.mcesnik.planner_backend.repository.TripRepository;
 import com.mcesnik.planner_backend.repository.TripStyleRepository;
 import com.mcesnik.planner_backend.repository.TripTemplateRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
+import com.mcesnik.planner_backend.responses.FeaturedTemplateResponse;
 import com.mcesnik.planner_backend.responses.TemplateActivityResponse;
 import com.mcesnik.planner_backend.responses.TemplateDayResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
@@ -60,6 +61,13 @@ public class TripTemplateService {
     public List<TripStyleResponse> listStyles() {
         return styleRepository.findAllByOrderByDisplayOrderAsc().stream()
                 .map(styleMapper::toSummary)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<FeaturedTemplateResponse> listTemplates() {
+        return templateRepository.findAllOrderedWithStyle().stream()
+                .map(templateMapper::toFeatured)
                 .toList();
     }
 
