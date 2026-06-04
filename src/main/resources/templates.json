@@ -641,5 +641,329 @@
         ]
       }
     ]
+  },
+  {
+    "slug": "adventure",
+    "name": "Adventure",
+    "description": "Treks, road trips and wild landscapes for the restless.",
+    "imageUrl": null,
+    "displayOrder": 4,
+    "templates": [
+      {
+        "slug": "iceland-south-coast",
+        "name": "Iceland South Coast Adventure",
+        "description": "Five days of waterfalls, glaciers and black-sand beaches along Iceland's south.",
+        "destination": "South Iceland",
+        "durationDays": 5,
+        "recommendedSeason": "SUMMER",
+        "imageUrl": null,
+        "estimatedBudget": 1800.0,
+        "interests": [
+          "ADVENTURE",
+          "NATURE"
+        ],
+        "displayOrder": 1,
+        "days": [
+          {
+            "dayNumber": 1,
+            "title": "Arrival & Golden Circle",
+            "notes": "Pick up the rental and a waterproof shell — the weather flips fast. Summer daylight is endless, so don't rush the first stops.",
+            "activities": [
+              {
+                "name": "Car pickup",
+                "description": null,
+                "location": "Keflavík Airport",
+                "startTime": "11:00",
+                "endTime": "12:00"
+              },
+              {
+                "name": "Þingvellir National Park",
+                "description": "Walk the rift between two tectonic plates",
+                "location": "Þingvellir",
+                "startTime": "14:00",
+                "endTime": "15:30"
+              },
+              {
+                "name": "Geysir & Strokkur",
+                "description": "Strokkur erupts every few minutes",
+                "location": "Haukadalur",
+                "startTime": "16:00",
+                "endTime": "17:00"
+              },
+              {
+                "name": "Gullfoss waterfall",
+                "description": null,
+                "location": "Gullfoss",
+                "startTime": "17:30",
+                "endTime": "18:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 2,
+            "title": "Waterfalls & black sand",
+            "notes": "Spray soaks you at Seljalandsfoss — keep the camera dry. Sneaker waves at Reynisfjara are deadly; never turn your back on the sea.",
+            "activities": [
+              {
+                "name": "Seljalandsfoss",
+                "description": "Walk behind the falls",
+                "location": "Seljalandsfoss",
+                "startTime": "09:30",
+                "endTime": "10:30"
+              },
+              {
+                "name": "Skógafoss",
+                "description": null,
+                "location": "Skógafoss",
+                "startTime": "11:15",
+                "endTime": "12:15"
+              },
+              {
+                "name": "Reynisfjara black-sand beach",
+                "description": "Basalt columns and sea stacks",
+                "location": "Reynisfjara",
+                "startTime": "14:00",
+                "endTime": "15:30"
+              },
+              {
+                "name": "Dinner in Vík",
+                "description": null,
+                "location": "Vík í Mýrdal",
+                "startTime": "19:00",
+                "endTime": "20:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 3,
+            "title": "Glacier hike & Diamond Beach",
+            "notes": "Crampons and a guide are non-negotiable on the ice. Book the morning slot so weather can't cancel you.",
+            "activities": [
+              {
+                "name": "Skaftafell glacier hike",
+                "description": "Guided walk on a Vatnajökull tongue",
+                "location": "Skaftafell",
+                "startTime": "09:00",
+                "endTime": "12:00"
+              },
+              {
+                "name": "Jökulsárlón glacier lagoon",
+                "description": "Icebergs drifting out to sea",
+                "location": "Jökulsárlón",
+                "startTime": "14:00",
+                "endTime": "15:30"
+              },
+              {
+                "name": "Diamond Beach",
+                "description": "Ice chunks scattered on black sand",
+                "location": "Breiðamerkursandur",
+                "startTime": "15:30",
+                "endTime": "16:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 4,
+            "title": "Þórsmörk valley hike",
+            "notes": "The highland bus fords real rivers — leave the rental behind. No shops in the valley, so pack layers and lunch.",
+            "activities": [
+              {
+                "name": "Highland bus to Þórsmörk",
+                "description": null,
+                "location": "Þórsmörk",
+                "startTime": "08:00",
+                "endTime": "10:30"
+              },
+              {
+                "name": "Valahnúkur viewpoint hike",
+                "description": "360° view over glaciers and braided rivers",
+                "location": "Þórsmörk",
+                "startTime": "11:00",
+                "endTime": "14:00"
+              },
+              {
+                "name": "Soak at Seljavallalaug",
+                "description": "Old pool tucked into the hillside",
+                "location": "Seljavallalaug",
+                "startTime": "16:00",
+                "endTime": "17:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 5,
+            "title": "Reykjavík & departure",
+            "notes": "Return the car with a full tank to dodge fees. Leave two hours for the Keflavík drive and check-in.",
+            "activities": [
+              {
+                "name": "Sky Lagoon soak",
+                "description": "Geothermal spa on the ocean's edge",
+                "location": "Kársnes, Reykjavík",
+                "startTime": "09:00",
+                "endTime": "11:00"
+              },
+              {
+                "name": "Flight home",
+                "description": null,
+                "location": "Keflavík Airport",
+                "startTime": "14:00",
+                "endTime": "15:30"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "slug": "morocco-atlas-desert",
+        "name": "Morocco Atlas & Desert",
+        "description": "Five days from Marrakech's souks over the High Atlas to a night in the Sahara.",
+        "destination": "Marrakech & the Sahara, Morocco",
+        "durationDays": 5,
+        "recommendedSeason": "SPRING",
+        "imageUrl": null,
+        "estimatedBudget": 900.0,
+        "interests": [
+          "ADVENTURE",
+          "NATURE",
+          "CULTURE"
+        ],
+        "displayOrder": 2,
+        "days": [
+          {
+            "dayNumber": 1,
+            "title": "Marrakech medina",
+            "notes": "Agree the taxi fare before you get in. The souk is a maze — drop a pin on your riad so you can find the way back.",
+            "activities": [
+              {
+                "name": "Riad check-in",
+                "description": null,
+                "location": "Marrakech medina",
+                "startTime": "14:00",
+                "endTime": "15:00"
+              },
+              {
+                "name": "Jemaa el-Fnaa & souks",
+                "description": "Stalls, snake charmers and street food",
+                "location": "Jemaa el-Fnaa",
+                "startTime": "16:00",
+                "endTime": "18:30"
+              },
+              {
+                "name": "Rooftop tagine dinner",
+                "description": null,
+                "location": "Marrakech medina",
+                "startTime": "20:00",
+                "endTime": "21:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 2,
+            "title": "High Atlas trek",
+            "notes": "Broken-in boots and modest layers. A local guide from Imlil is cheap and worth it on the Berber-village trails.",
+            "activities": [
+              {
+                "name": "Drive to Imlil",
+                "description": null,
+                "location": "Marrakech → Imlil",
+                "startTime": "08:00",
+                "endTime": "09:30"
+              },
+              {
+                "name": "Toubkal foothills trek",
+                "description": "Walk to a Berber village above the valley",
+                "location": "Imlil",
+                "startTime": "10:00",
+                "endTime": "15:00"
+              },
+              {
+                "name": "Mint tea with a host family",
+                "description": null,
+                "location": "Imlil",
+                "startTime": "15:30",
+                "endTime": "16:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 3,
+            "title": "Over the Atlas to the desert gate",
+            "notes": "The Tizi n'Tichka pass is slow and windy — start early. Aït Benhaddou glows in soft afternoon light.",
+            "activities": [
+              {
+                "name": "Tizi n'Tichka pass drive",
+                "description": "High mountain switchbacks",
+                "location": "Tizi n'Tichka",
+                "startTime": "08:00",
+                "endTime": "11:00"
+              },
+              {
+                "name": "Aït Benhaddou kasbah",
+                "description": "UNESCO mud-brick fortress",
+                "location": "Aït Benhaddou",
+                "startTime": "11:30",
+                "endTime": "13:30"
+              },
+              {
+                "name": "Dades Gorge sunset",
+                "description": null,
+                "location": "Dades Valley",
+                "startTime": "18:00",
+                "endTime": "19:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 4,
+            "title": "Sahara at Merzouga",
+            "notes": "Sunscreen, scarf and plenty of water. Seal your phone in a bag — the fine sand gets into everything.",
+            "activities": [
+              {
+                "name": "Drive to Merzouga",
+                "description": null,
+                "location": "Dades → Merzouga",
+                "startTime": "09:00",
+                "endTime": "13:00"
+              },
+              {
+                "name": "Camel trek into Erg Chebbi",
+                "description": "Ride into the dunes at golden hour",
+                "location": "Erg Chebbi",
+                "startTime": "17:00",
+                "endTime": "18:30"
+              },
+              {
+                "name": "Desert camp night",
+                "description": "Dinner and drumming under the stars",
+                "location": "Erg Chebbi camp",
+                "startTime": "20:00",
+                "endTime": "22:30"
+              }
+            ]
+          },
+          {
+            "dayNumber": 5,
+            "title": "Sunrise dunes & return",
+            "notes": "Climb the nearest dune before dawn for the sunrise. It's a long drive back — settle the camp tip the night before.",
+            "activities": [
+              {
+                "name": "Sunrise over the dunes",
+                "description": null,
+                "location": "Erg Chebbi",
+                "startTime": "05:30",
+                "endTime": "07:00"
+              },
+              {
+                "name": "Drive back to Marrakech",
+                "description": null,
+                "location": "Merzouga → Marrakech",
+                "startTime": "09:00",
+                "endTime": "17:00"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
