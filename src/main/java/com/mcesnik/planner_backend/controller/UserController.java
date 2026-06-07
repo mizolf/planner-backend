@@ -1,8 +1,11 @@
 package com.mcesnik.planner_backend.controller;
 
+import com.mcesnik.planner_backend.DTO.ChangePasswordDTO;
+import com.mcesnik.planner_backend.DTO.UpdatePreferencesDTO;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.responses.UserResponse;
 import com.mcesnik.planner_backend.service.UserService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,10 +24,19 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> authenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(currentUser);
+    public ResponseEntity<UserResponse> authenticatedUser() {
+        return ResponseEntity.ok(UserResponse.from(currentUser()));
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDTO dto) {
+        userService.changePassword(currentUser(), dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/me/preferences")
+    public ResponseEntity<UserResponse> updatePreferences(@Valid @RequestBody UpdatePreferencesDTO dto) {
+        return ResponseEntity.ok(userService.updatePreferences(currentUser(), dto.getInterests()));
     }
 
     @GetMapping("/search")
@@ -37,5 +49,10 @@ public class UserController {
                         .email(user.getEmail())
                         .build()))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    private User currentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 }

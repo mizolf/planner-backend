@@ -82,6 +82,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPassword(InvalidPasswordException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "INVALID_CURRENT_PASSWORD", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(InviteConflictException.class)
     public ResponseEntity<ErrorResponse> handleInviteConflict(InviteConflictException ex) {
         ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getCode().name(), ex.getMessage());

@@ -1,6 +1,7 @@
 package com.mcesnik.planner_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mcesnik.planner_backend.model.Enums.Interest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -27,6 +30,7 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
     private boolean enabled;
@@ -36,6 +40,12 @@ public class User implements UserDetails {
 
     @Column(name = "verification_expiration")
     private LocalDateTime verificationCodeExpiresAt;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "interest")
+    private Set<Interest> preferredInterests = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
