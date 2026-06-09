@@ -44,6 +44,8 @@ public class ChangeDetector {
         compare(changes, "location", activity.getLocation(), dto.getLocation());
         compare(changes, "startTime", activity.getStartTime(), dto.getStartTime());
         compare(changes, "endTime", activity.getEndTime(), dto.getEndTime());
+        compare(changes, "category", activity.getCategory(), dto.getCategory());
+        compareBigDecimal(changes, "cost", activity.getCost(), dto.getCost());
         return changes;
     }
 

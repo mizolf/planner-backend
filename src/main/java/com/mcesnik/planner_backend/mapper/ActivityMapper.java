@@ -16,6 +16,8 @@ public class ActivityMapper {
                 .location(dto.getLocation())
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
+                .category(dto.getCategory())
+                .cost(dto.getCost())
                 .build();
     }
 
@@ -25,6 +27,8 @@ public class ActivityMapper {
         if (dto.getLocation() != null) activity.setLocation(dto.getLocation());
         if (dto.getStartTime() != null) activity.setStartTime(dto.getStartTime());
         if (dto.getEndTime() != null) activity.setEndTime(dto.getEndTime());
+        if (dto.getCategory() != null) activity.setCategory(dto.getCategory());
+        if (dto.getCost() != null) activity.setCost(dto.getCost());
     }
 
     public ActivityResponse toResponse(Activity activity) {
@@ -35,6 +39,8 @@ public class ActivityMapper {
                 .location(activity.getLocation())
                 .startTime(activity.getStartTime())
                 .endTime(activity.getEndTime())
+                .category(activity.getCategory())
+                .cost(activity.getCost())
                 .build();
     }
 }
