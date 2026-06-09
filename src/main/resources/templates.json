@@ -31,21 +31,27 @@
                 "description": null,
                 "location": "Hotel Garbi",
                 "startTime": "15:00",
-                "endTime": "16:00"
+                "endTime": "16:00",
+                "category": "ACCOMMODATION",
+                "cost": 180.00
               },
               {
                 "name": "Sunset drinks",
                 "description": "Cocktails with a view of the bay",
                 "location": "Café del Mar",
                 "startTime": "19:30",
-                "endTime": "21:30"
+                "endTime": "21:30",
+                "category": "RESTAURANT",
+                "cost": 45.00
               },
               {
                 "name": "Ushuaïa opening party",
                 "description": "Marquee headliner set",
                 "location": "Ushuaïa Ibiza",
                 "startTime": "22:00",
-                "endTime": "04:00"
+                "endTime": "04:00",
+                "category": "ATTRACTION",
+                "cost": 220.00
               }
             ]
           },
@@ -59,21 +65,27 @@
                 "description": "Bring a towel and sunscreen",
                 "location": "Cala Comte",
                 "startTime": "11:00",
-                "endTime": "17:00"
+                "endTime": "17:00",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Dinner at Sa Punta",
                 "description": "Mediterranean tasting menu",
                 "location": "Sa Punta, Talamanca",
                 "startTime": "20:30",
-                "endTime": "23:00"
+                "endTime": "23:00",
+                "category": "RESTAURANT",
+                "cost": 140.00
               },
               {
                 "name": "Pacha night",
                 "description": "Late-night house set",
                 "location": "Pacha Ibiza",
                 "startTime": "00:30",
-                "endTime": "06:00"
+                "endTime": "06:00",
+                "category": "ATTRACTION",
+                "cost": 180.00
               }
             ]
           },
@@ -87,21 +99,27 @@
                 "description": "UNESCO old town and hilltop views",
                 "location": "Dalt Vila, Ibiza Town",
                 "startTime": "11:00",
-                "endTime": "13:30"
+                "endTime": "13:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Lunch & siesta",
                 "description": null,
                 "location": "Hotel",
                 "startTime": "14:00",
-                "endTime": "17:00"
+                "endTime": "17:00",
+                "category": "RESTAURANT",
+                "cost": 35.00
               },
               {
                 "name": "Hï Ibiza",
                 "description": "Resident DJ marathon",
                 "location": "Hï Ibiza",
                 "startTime": "23:30",
-                "endTime": "06:30"
+                "endTime": "06:30",
+                "category": "ATTRACTION",
+                "cost": 200.00
               }
             ]
           },
@@ -115,14 +133,18 @@
                 "description": null,
                 "location": "Beso Beach",
                 "startTime": "12:00",
-                "endTime": "14:00"
+                "endTime": "14:00",
+                "category": "RESTAURANT",
+                "cost": 60.00
               },
               {
                 "name": "Flight home",
                 "description": null,
                 "location": "Ibiza Airport",
                 "startTime": "17:00",
-                "endTime": "18:30"
+                "endTime": "18:30",
+                "category": "TRANSPORT",
+                "cost": 180.00
               }
             ]
           }
@@ -153,21 +175,27 @@
                 "description": "Stretch your legs along the longest piece of the Wall",
                 "location": "Friedrichshain",
                 "startTime": "16:00",
-                "endTime": "18:30"
+                "endTime": "18:30",
+                "category": "ACCOMMODATION",
+                "cost": 120.00
               },
               {
                 "name": "Vietnamese dinner",
                 "description": null,
                 "location": "Chên Chè, Mitte",
                 "startTime": "20:00",
-                "endTime": "21:30"
+                "endTime": "21:30",
+                "category": "RESTAURANT",
+                "cost": 40.00
               },
               {
                 "name": "Watergate",
                 "description": "Riverside club, easier door than Berghain",
                 "location": "Watergate, Kreuzberg",
                 "startTime": "00:00",
-                "endTime": "06:00"
+                "endTime": "06:00",
+                "category": "ATTRACTION",
+                "cost": 50.00
               }
             ]
           },
@@ -181,21 +209,27 @@
                 "description": null,
                 "location": "Five Elephant Coffee",
                 "startTime": "12:00",
-                "endTime": "13:30"
+                "endTime": "13:30",
+                "category": "RESTAURANT",
+                "cost": 25.00
               },
               {
                 "name": "Museumsinsel",
                 "description": "Pergamon and Neues Museum",
                 "location": "Museum Island",
                 "startTime": "14:30",
-                "endTime": "18:00"
+                "endTime": "18:00",
+                "category": "ATTRACTION",
+                "cost": 40.00
               },
               {
                 "name": "Berghain queue",
                 "description": "Dress dark, no cameras, be patient",
                 "location": "Berghain",
                 "startTime": "23:30",
-                "endTime": "10:00"
+                "endTime": "10:00",
+                "category": "ATTRACTION",
+                "cost": 50.00
               }
             ]
           },
@@ -209,14 +243,18 @@
                 "description": "Sunday-only market and karaoke pit",
                 "location": "Mauerpark",
                 "startTime": "13:00",
-                "endTime": "16:00"
+                "endTime": "16:00",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Currywurst & beer",
                 "description": null,
                 "location": "Curry 36",
                 "startTime": "16:30",
-                "endTime": "17:30"
+                "endTime": "17:30",
+                "category": "RESTAURANT",
+                "cost": 20.00
               }
             ]
           }
@@ -256,14 +294,18 @@
                 "description": null,
                 "location": "Malé Airport",
                 "startTime": "13:00",
-                "endTime": "14:00"
+                "endTime": "14:00",
+                "category": "TRANSPORT",
+                "cost": 700.00
               },
               {
                 "name": "Welcome dinner",
                 "description": "Beachfront grill",
                 "location": "Resort main restaurant",
                 "startTime": "19:30",
-                "endTime": "21:30"
+                "endTime": "21:30",
+                "category": "RESTAURANT",
+                "cost": 120.00
               }
             ]
           },
@@ -277,21 +319,27 @@
                 "description": "Bring an underwater camera",
                 "location": "House reef",
                 "startTime": "09:30",
-                "endTime": "11:30"
+                "endTime": "11:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Lazy afternoon",
                 "description": null,
                 "location": "Overwater villa",
                 "startTime": "13:00",
-                "endTime": "17:00"
+                "endTime": "17:00",
+                "category": "OTHER",
+                "cost": 0.00
               },
               {
                 "name": "Sunset dhoni cruise",
                 "description": "Spotting dolphins on a traditional boat",
                 "location": "Lagoon",
                 "startTime": "17:30",
-                "endTime": "19:00"
+                "endTime": "19:00",
+                "category": "ATTRACTION",
+                "cost": 160.00
               }
             ]
           },
@@ -305,14 +353,18 @@
                 "description": null,
                 "location": "Resort spa",
                 "startTime": "11:00",
-                "endTime": "12:30"
+                "endTime": "12:30",
+                "category": "ATTRACTION",
+                "cost": 260.00
               },
               {
                 "name": "Pool & book afternoon",
                 "description": null,
                 "location": "Infinity pool",
                 "startTime": "13:30",
-                "endTime": "17:30"
+                "endTime": "17:30",
+                "category": "OTHER",
+                "cost": 0.00
               }
             ]
           },
@@ -326,14 +378,18 @@
                 "description": "Private island for a couple of hours",
                 "location": "Nearby sandbank",
                 "startTime": "10:00",
-                "endTime": "13:00"
+                "endTime": "13:00",
+                "category": "ATTRACTION",
+                "cost": 220.00
               },
               {
                 "name": "Teppanyaki dinner",
                 "description": null,
                 "location": "Resort Japanese restaurant",
                 "startTime": "20:00",
-                "endTime": "22:00"
+                "endTime": "22:00",
+                "category": "RESTAURANT",
+                "cost": 180.00
               }
             ]
           },
@@ -347,14 +403,18 @@
                 "description": null,
                 "location": "Villa terrace",
                 "startTime": "09:00",
-                "endTime": "10:30"
+                "endTime": "10:30",
+                "category": "RESTAURANT",
+                "cost": 0.00
               },
               {
                 "name": "Seaplane back",
                 "description": null,
                 "location": "Resort jetty",
                 "startTime": "12:00",
-                "endTime": "13:00"
+                "endTime": "13:00",
+                "category": "TRANSPORT",
+                "cost": 700.00
               }
             ]
           }
@@ -386,14 +446,18 @@
                 "description": null,
                 "location": "Yoga Barn, Ubud",
                 "startTime": "16:00",
-                "endTime": "17:30"
+                "endTime": "17:30",
+                "category": "ACCOMMODATION",
+                "cost": 70.00
               },
               {
                 "name": "Vegan dinner",
                 "description": null,
                 "location": "Sayuri Healing Food",
                 "startTime": "19:00",
-                "endTime": "20:30"
+                "endTime": "20:30",
+                "category": "RESTAURANT",
+                "cost": 30.00
               }
             ]
           },
@@ -407,21 +471,27 @@
                 "description": null,
                 "location": "Yoga Barn, Ubud",
                 "startTime": "06:30",
-                "endTime": "08:00"
+                "endTime": "08:00",
+                "category": "ATTRACTION",
+                "cost": 24.00
               },
               {
                 "name": "Tegallalang rice terraces walk",
                 "description": null,
                 "location": "Tegallalang",
                 "startTime": "10:00",
-                "endTime": "12:30"
+                "endTime": "12:30",
+                "category": "ATTRACTION",
+                "cost": 10.00
               },
               {
                 "name": "Tirta Empul water temple",
                 "description": "Bring a sarong",
                 "location": "Tirta Empul",
                 "startTime": "14:30",
-                "endTime": "16:30"
+                "endTime": "16:30",
+                "category": "ATTRACTION",
+                "cost": 15.00
               }
             ]
           },
@@ -435,14 +505,18 @@
                 "description": "Market visit and home kitchen",
                 "location": "Paon Bali Cooking Class",
                 "startTime": "08:30",
-                "endTime": "13:30"
+                "endTime": "13:30",
+                "category": "ATTRACTION",
+                "cost": 70.00
               },
               {
                 "name": "Spa & flower bath",
                 "description": null,
                 "location": "Karsa Spa",
                 "startTime": "16:00",
-                "endTime": "18:00"
+                "endTime": "18:00",
+                "category": "ATTRACTION",
+                "cost": 50.00
               }
             ]
           },
@@ -456,14 +530,18 @@
                 "description": "Easy hill walk at sunrise",
                 "location": "Campuhan Ridge",
                 "startTime": "06:30",
-                "endTime": "08:30"
+                "endTime": "08:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Brunch & airport transfer",
                 "description": null,
                 "location": "Ubud → Denpasar",
                 "startTime": "10:00",
-                "endTime": "13:00"
+                "endTime": "13:00",
+                "category": "RESTAURANT",
+                "cost": 35.00
               }
             ]
           }
@@ -504,35 +582,45 @@
                 "description": "Astronomical clock on the hour",
                 "location": "Old Town Square",
                 "startTime": "10:00",
-                "endTime": "11:30"
+                "endTime": "11:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Charles Bridge crossing",
                 "description": null,
                 "location": "Charles Bridge",
                 "startTime": "11:30",
-                "endTime": "12:30"
+                "endTime": "12:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Lunch — svíčková",
                 "description": "Czech beef sirloin classic",
                 "location": "Lokál Dlouhááá",
                 "startTime": "13:00",
-                "endTime": "14:30"
+                "endTime": "14:30",
+                "category": "RESTAURANT",
+                "cost": 30.00
               },
               {
                 "name": "Prague Castle",
                 "description": "St. Vitus Cathedral and Golden Lane",
                 "location": "Pražský hrad",
                 "startTime": "15:00",
-                "endTime": "18:00"
+                "endTime": "18:00",
+                "category": "ATTRACTION",
+                "cost": 40.00
               },
               {
                 "name": "Beer hall dinner",
                 "description": null,
                 "location": "U Fleků",
                 "startTime": "20:00",
-                "endTime": "22:30"
+                "endTime": "22:30",
+                "category": "RESTAURANT",
+                "cost": 45.00
               }
             ]
           },
@@ -546,21 +634,27 @@
                 "description": "Old Synagogue and cemetery",
                 "location": "Josefov",
                 "startTime": "10:00",
-                "endTime": "12:30"
+                "endTime": "12:30",
+                "category": "ATTRACTION",
+                "cost": 60.00
               },
               {
                 "name": "Vltava river cruise",
                 "description": null,
                 "location": "Vltava",
                 "startTime": "14:00",
-                "endTime": "15:30"
+                "endTime": "15:30",
+                "category": "ATTRACTION",
+                "cost": 50.00
               },
               {
                 "name": "Trdelník & coffee",
                 "description": null,
                 "location": "Wenceslas Square",
                 "startTime": "16:00",
-                "endTime": "17:00"
+                "endTime": "17:00",
+                "category": "RESTAURANT",
+                "cost": 12.00
               }
             ]
           }
@@ -592,28 +686,36 @@
                 "description": null,
                 "location": "Como → Bellagio",
                 "startTime": "10:30",
-                "endTime": "12:00"
+                "endTime": "12:00",
+                "category": "TRANSPORT",
+                "cost": 35.00
               },
               {
                 "name": "Villa Melzi gardens",
                 "description": null,
                 "location": "Villa Melzi, Bellagio",
                 "startTime": "13:30",
-                "endTime": "15:30"
+                "endTime": "15:30",
+                "category": "ATTRACTION",
+                "cost": 16.00
               },
               {
                 "name": "Lakeside aperitivo",
                 "description": null,
                 "location": "Bellagio promenade",
                 "startTime": "18:30",
-                "endTime": "20:00"
+                "endTime": "20:00",
+                "category": "RESTAURANT",
+                "cost": 40.00
               },
               {
                 "name": "Risotto dinner",
                 "description": null,
                 "location": "Ristorante Bilacus",
                 "startTime": "20:30",
-                "endTime": "22:30"
+                "endTime": "22:30",
+                "category": "RESTAURANT",
+                "cost": 90.00
               }
             ]
           },
@@ -627,14 +729,18 @@
                 "description": null,
                 "location": "Varenna",
                 "startTime": "10:00",
-                "endTime": "12:30"
+                "endTime": "12:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Lakeside lunch",
                 "description": null,
                 "location": "Ristorante Vecchia Varenna",
                 "startTime": "13:00",
-                "endTime": "14:30"
+                "endTime": "14:30",
+                "category": "RESTAURANT",
+                "cost": 70.00
               }
             ]
           }
@@ -674,28 +780,36 @@
                 "description": null,
                 "location": "Keflavík Airport",
                 "startTime": "11:00",
-                "endTime": "12:00"
+                "endTime": "12:00",
+                "category": "TRANSPORT",
+                "cost": 450.00
               },
               {
                 "name": "Þingvellir National Park",
                 "description": "Walk the rift between two tectonic plates",
                 "location": "Þingvellir",
                 "startTime": "14:00",
-                "endTime": "15:30"
+                "endTime": "15:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Geysir & Strokkur",
                 "description": "Strokkur erupts every few minutes",
                 "location": "Haukadalur",
                 "startTime": "16:00",
-                "endTime": "17:00"
+                "endTime": "17:00",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Gullfoss waterfall",
                 "description": null,
                 "location": "Gullfoss",
                 "startTime": "17:30",
-                "endTime": "18:30"
+                "endTime": "18:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               }
             ]
           },
@@ -709,28 +823,36 @@
                 "description": "Walk behind the falls",
                 "location": "Seljalandsfoss",
                 "startTime": "09:30",
-                "endTime": "10:30"
+                "endTime": "10:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Skógafoss",
                 "description": null,
                 "location": "Skógafoss",
                 "startTime": "11:15",
-                "endTime": "12:15"
+                "endTime": "12:15",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Reynisfjara black-sand beach",
                 "description": "Basalt columns and sea stacks",
                 "location": "Reynisfjara",
                 "startTime": "14:00",
-                "endTime": "15:30"
+                "endTime": "15:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Dinner in Vík",
                 "description": null,
                 "location": "Vík í Mýrdal",
                 "startTime": "19:00",
-                "endTime": "20:30"
+                "endTime": "20:30",
+                "category": "RESTAURANT",
+                "cost": 70.00
               }
             ]
           },
@@ -744,21 +866,27 @@
                 "description": "Guided walk on a Vatnajökull tongue",
                 "location": "Skaftafell",
                 "startTime": "09:00",
-                "endTime": "12:00"
+                "endTime": "12:00",
+                "category": "ATTRACTION",
+                "cost": 300.00
               },
               {
                 "name": "Jökulsárlón glacier lagoon",
                 "description": "Icebergs drifting out to sea",
                 "location": "Jökulsárlón",
                 "startTime": "14:00",
-                "endTime": "15:30"
+                "endTime": "15:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Diamond Beach",
                 "description": "Ice chunks scattered on black sand",
                 "location": "Breiðamerkursandur",
                 "startTime": "15:30",
-                "endTime": "16:30"
+                "endTime": "16:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               }
             ]
           },
@@ -772,21 +900,27 @@
                 "description": null,
                 "location": "Þórsmörk",
                 "startTime": "08:00",
-                "endTime": "10:30"
+                "endTime": "10:30",
+                "category": "TRANSPORT",
+                "cost": 130.00
               },
               {
                 "name": "Valahnúkur viewpoint hike",
                 "description": "360° view over glaciers and braided rivers",
                 "location": "Þórsmörk",
                 "startTime": "11:00",
-                "endTime": "14:00"
+                "endTime": "14:00",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Soak at Seljavallalaug",
                 "description": "Old pool tucked into the hillside",
                 "location": "Seljavallalaug",
                 "startTime": "16:00",
-                "endTime": "17:30"
+                "endTime": "17:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               }
             ]
           },
@@ -800,14 +934,18 @@
                 "description": "Geothermal spa on the ocean's edge",
                 "location": "Kársnes, Reykjavík",
                 "startTime": "09:00",
-                "endTime": "11:00"
+                "endTime": "11:00",
+                "category": "ATTRACTION",
+                "cost": 120.00
               },
               {
                 "name": "Flight home",
                 "description": null,
                 "location": "Keflavík Airport",
                 "startTime": "14:00",
-                "endTime": "15:30"
+                "endTime": "15:30",
+                "category": "TRANSPORT",
+                "cost": 400.00
               }
             ]
           }
@@ -839,21 +977,27 @@
                 "description": null,
                 "location": "Marrakech medina",
                 "startTime": "14:00",
-                "endTime": "15:00"
+                "endTime": "15:00",
+                "category": "ACCOMMODATION",
+                "cost": 80.00
               },
               {
                 "name": "Jemaa el-Fnaa & souks",
                 "description": "Stalls, snake charmers and street food",
                 "location": "Jemaa el-Fnaa",
                 "startTime": "16:00",
-                "endTime": "18:30"
+                "endTime": "18:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Rooftop tagine dinner",
                 "description": null,
                 "location": "Marrakech medina",
                 "startTime": "20:00",
-                "endTime": "21:30"
+                "endTime": "21:30",
+                "category": "RESTAURANT",
+                "cost": 40.00
               }
             ]
           },
@@ -867,21 +1011,27 @@
                 "description": null,
                 "location": "Marrakech → Imlil",
                 "startTime": "08:00",
-                "endTime": "09:30"
+                "endTime": "09:30",
+                "category": "TRANSPORT",
+                "cost": 60.00
               },
               {
                 "name": "Toubkal foothills trek",
                 "description": "Walk to a Berber village above the valley",
                 "location": "Imlil",
                 "startTime": "10:00",
-                "endTime": "15:00"
+                "endTime": "15:00",
+                "category": "ATTRACTION",
+                "cost": 80.00
               },
               {
                 "name": "Mint tea with a host family",
                 "description": null,
                 "location": "Imlil",
                 "startTime": "15:30",
-                "endTime": "16:30"
+                "endTime": "16:30",
+                "category": "RESTAURANT",
+                "cost": 15.00
               }
             ]
           },
@@ -895,21 +1045,27 @@
                 "description": "High mountain switchbacks",
                 "location": "Tizi n'Tichka",
                 "startTime": "08:00",
-                "endTime": "11:00"
+                "endTime": "11:00",
+                "category": "TRANSPORT",
+                "cost": 80.00
               },
               {
                 "name": "Aït Benhaddou kasbah",
                 "description": "UNESCO mud-brick fortress",
                 "location": "Aït Benhaddou",
                 "startTime": "11:30",
-                "endTime": "13:30"
+                "endTime": "13:30",
+                "category": "ATTRACTION",
+                "cost": 20.00
               },
               {
                 "name": "Dades Gorge sunset",
                 "description": null,
                 "location": "Dades Valley",
                 "startTime": "18:00",
-                "endTime": "19:30"
+                "endTime": "19:30",
+                "category": "ATTRACTION",
+                "cost": 0.00
               }
             ]
           },
@@ -923,21 +1079,27 @@
                 "description": null,
                 "location": "Dades → Merzouga",
                 "startTime": "09:00",
-                "endTime": "13:00"
+                "endTime": "13:00",
+                "category": "TRANSPORT",
+                "cost": 80.00
               },
               {
                 "name": "Camel trek into Erg Chebbi",
                 "description": "Ride into the dunes at golden hour",
                 "location": "Erg Chebbi",
                 "startTime": "17:00",
-                "endTime": "18:30"
+                "endTime": "18:30",
+                "category": "ATTRACTION",
+                "cost": 120.00
               },
               {
                 "name": "Desert camp night",
                 "description": "Dinner and drumming under the stars",
                 "location": "Erg Chebbi camp",
                 "startTime": "20:00",
-                "endTime": "22:30"
+                "endTime": "22:30",
+                "category": "ACCOMMODATION",
+                "cost": 160.00
               }
             ]
           },
@@ -951,14 +1113,18 @@
                 "description": null,
                 "location": "Erg Chebbi",
                 "startTime": "05:30",
-                "endTime": "07:00"
+                "endTime": "07:00",
+                "category": "ATTRACTION",
+                "cost": 0.00
               },
               {
                 "name": "Drive back to Marrakech",
                 "description": null,
                 "location": "Merzouga → Marrakech",
                 "startTime": "09:00",
-                "endTime": "17:00"
+                "endTime": "17:00",
+                "category": "TRANSPORT",
+                "cost": 90.00
               }
             ]
           }
