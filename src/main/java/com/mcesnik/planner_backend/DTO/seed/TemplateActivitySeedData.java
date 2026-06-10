@@ -1,5 +1,8 @@
 package com.mcesnik.planner_backend.DTO.seed;
 
+import com.mcesnik.planner_backend.model.Enums.ActivityCategory;
+
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 public record TemplateActivitySeedData(
@@ -7,6 +10,8 @@ public record TemplateActivitySeedData(
         String description,
         String location,
         LocalTime startTime,
-        LocalTime endTime
+        LocalTime endTime,
+        ActivityCategory category,
+        BigDecimal cost
 ) {
 }

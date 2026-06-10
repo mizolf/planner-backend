@@ -14,6 +14,8 @@ public class TemplateActivityMapper {
                 .location(activity.getLocation())
                 .startTime(activity.getStartTime())
                 .endTime(activity.getEndTime())
+                .category(activity.getCategory())
+                .cost(activity.getCost())
                 .build();
     }
 }

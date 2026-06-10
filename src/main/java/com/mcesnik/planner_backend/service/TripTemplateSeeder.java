@@ -148,6 +148,8 @@ public class TripTemplateSeeder {
                 .location(data.location())
                 .startTime(data.startTime())
                 .endTime(data.endTime())
+                .category(data.category())
+                .cost(data.cost())
                 .templateDay(day)
                 .build();
     }

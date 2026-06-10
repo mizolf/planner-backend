@@ -1,8 +1,10 @@
 package com.mcesnik.planner_backend.model;
 
+import com.mcesnik.planner_backend.model.Enums.ActivityCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 @Entity
@@ -29,6 +31,13 @@ public class TemplateActivity {
 
     @Column(name = "end_time")
     private LocalTime endTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private ActivityCategory category;
+
+    @Column(precision = 8, scale = 2)
+    private BigDecimal cost;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "template_day_id", nullable = false)

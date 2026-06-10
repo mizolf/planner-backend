@@ -150,6 +150,8 @@ public class TripTemplateService {
                         .location(sourceAct.getLocation())
                         .startTime(sourceAct.getStartTime())
                         .endTime(sourceAct.getEndTime())
+                        .category(sourceAct.getCategory())
+                        .cost(sourceAct.getCost())
                         .tripDay(newDay)
                         .build());
             }
