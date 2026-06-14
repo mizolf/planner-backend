@@ -1,6 +1,7 @@
 package com.mcesnik.planner_backend.DTO;
 
 import com.mcesnik.planner_backend.model.Enums.Interest;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +27,14 @@ public class CreateTripDTO {
     @NotBlank(message = "Destination is required")
     @Size(max = 255, message = "Destination must be at most 255 characters")
     private String destination;
+
+    @DecimalMin(value = "-90", message = "Latitude out of range")
+    @DecimalMax(value = "90", message = "Latitude out of range")
+    private Double latitude;
+
+    @DecimalMin(value = "-180", message = "Longitude out of range")
+    @DecimalMax(value = "180", message = "Longitude out of range")
+    private Double longitude;
 
     @NotNull(message = "Start date is required")
     private LocalDate startDate;

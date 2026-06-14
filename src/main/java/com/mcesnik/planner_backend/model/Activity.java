@@ -29,6 +29,10 @@ public class Activity {
     @Column(nullable = true)
     private String location;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @Column(name = "start_time")
     private LocalTime startTime;
 

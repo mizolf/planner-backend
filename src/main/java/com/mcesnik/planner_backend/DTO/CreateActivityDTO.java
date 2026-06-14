@@ -1,6 +1,7 @@
 package com.mcesnik.planner_backend.DTO;
 
 import com.mcesnik.planner_backend.model.Enums.ActivityCategory;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -24,6 +25,14 @@ public class CreateActivityDTO {
 
     @Size(max = 255, message = "Location must be at most 255 characters")
     private String location;
+
+    @DecimalMin(value = "-90", message = "Latitude out of range")
+    @DecimalMax(value = "90", message = "Latitude out of range")
+    private Double latitude;
+
+    @DecimalMin(value = "-180", message = "Longitude out of range")
+    @DecimalMax(value = "180", message = "Longitude out of range")
+    private Double longitude;
 
     private LocalTime startTime;
 

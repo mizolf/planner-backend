@@ -32,6 +32,10 @@ public class Trip {
 
     private String destination;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @Column(name = "start_date")
     private LocalDate startDate;
 

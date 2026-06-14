@@ -16,6 +16,8 @@ public class ActivityResponse {
     private String name;
     private String description;
     private String location;
+    private Double latitude;
+    private Double longitude;
     private LocalTime startTime;
     private LocalTime endTime;
     private ActivityCategory category;

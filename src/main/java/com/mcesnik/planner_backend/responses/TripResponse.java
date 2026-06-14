@@ -18,7 +18,10 @@ public class TripResponse {
     private Long id;
     private String name;
     private String description;
-    private String destination;                                                                                                                                                                                                                                                                                         private LocalDate startDate;
+    private String destination;
+    private Double latitude;
+    private Double longitude;
+    private LocalDate startDate;
     private LocalDate endDate;
     private TripStatus status;
     private BigDecimal budget;

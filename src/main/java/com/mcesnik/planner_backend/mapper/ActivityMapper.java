@@ -14,6 +14,8 @@ public class ActivityMapper {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .location(dto.getLocation())
+                .latitude(dto.getLatitude())
+                .longitude(dto.getLongitude())
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .category(dto.getCategory())
@@ -25,6 +27,9 @@ public class ActivityMapper {
         if (dto.getName() != null) activity.setName(dto.getName());
         if (dto.getDescription() != null) activity.setDescription(dto.getDescription());
         if (dto.getLocation() != null) activity.setLocation(dto.getLocation());
+        // Coordinates are always replaced (even with null) so the client can clear a pin
+        activity.setLatitude(dto.getLatitude());
+        activity.setLongitude(dto.getLongitude());
         if (dto.getStartTime() != null) activity.setStartTime(dto.getStartTime());
         if (dto.getEndTime() != null) activity.setEndTime(dto.getEndTime());
         if (dto.getCategory() != null) activity.setCategory(dto.getCategory());
@@ -37,6 +42,8 @@ public class ActivityMapper {
                 .name(activity.getName())
                 .description(activity.getDescription())
                 .location(activity.getLocation())
+                .latitude(activity.getLatitude())
+                .longitude(activity.getLongitude())
                 .startTime(activity.getStartTime())
                 .endTime(activity.getEndTime())
                 .category(activity.getCategory())

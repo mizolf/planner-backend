@@ -21,6 +21,8 @@ public class TripMapper {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .destination(dto.getDestination())
+                .latitude(dto.getLatitude())
+                .longitude(dto.getLongitude())
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
                 .budget(dto.getBudget())
@@ -32,6 +34,9 @@ public class TripMapper {
         if (dto.getName() != null) trip.setName(dto.getName());
         if (dto.getDescription() != null) trip.setDescription(dto.getDescription());
         if (dto.getDestination() != null) trip.setDestination(dto.getDestination());
+        // Coordinates are always replaced (even with null) so the client can clear a pin
+        trip.setLatitude(dto.getLatitude());
+        trip.setLongitude(dto.getLongitude());
         if (dto.getStartDate() != null) trip.setStartDate(dto.getStartDate());
         if (dto.getEndDate() != null) trip.setEndDate(dto.getEndDate());
         if (dto.getBudget() != null) trip.setBudget(dto.getBudget());
@@ -44,6 +49,8 @@ public class TripMapper {
                 .name(trip.getName())
                 .description(trip.getDescription())
                 .destination(trip.getDestination())
+                .latitude(trip.getLatitude())
+                .longitude(trip.getLongitude())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
                 .status(TripStatusCalculator.calculate(trip.getStartDate(), trip.getEndDate(), LocalDate.now()))
@@ -60,6 +67,8 @@ public class TripMapper {
         response.setName(trip.getName());
         response.setDescription(trip.getDescription());
         response.setDestination(trip.getDestination());
+        response.setLatitude(trip.getLatitude());
+        response.setLongitude(trip.getLongitude());
         response.setStartDate(trip.getStartDate());
         response.setEndDate(trip.getEndDate());
         response.setStatus(TripStatusCalculator.calculate(trip.getStartDate(), trip.getEndDate(), LocalDate.now()));
