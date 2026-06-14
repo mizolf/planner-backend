@@ -21,6 +21,7 @@ import com.mcesnik.planner_backend.repository.TripDayRepository;
 import com.mcesnik.planner_backend.repository.TripRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
 import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
+import com.mcesnik.planner_backend.exception.TripConflictException;
 import com.mcesnik.planner_backend.responses.TripDetailResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
 import org.springframework.context.ApplicationEventPublisher;
@@ -68,6 +69,13 @@ public class TripService {
 
         if (trip.getEndDate().isBefore(trip.getStartDate())) {
             throw new InvalidDateRangeException("End date must not be before start date");
+        }
+
+        if (tripRepository.existsOverlappingTripForUser(
+                currentUser.getId(), trip.getStartDate(), trip.getEndDate())) {
+            throw new TripConflictException(
+                    TripConflictException.Code.OVERLAPPING_DATES,
+                    "You already have a trip during these dates");
         }
 
         trip = tripRepository.save(trip);
@@ -140,6 +148,14 @@ public class TripService {
         if (trip.getStartDate() != null && trip.getEndDate() != null
                 && trip.getEndDate().isBefore(trip.getStartDate())) {
             throw new InvalidDateRangeException("End date must not be before start date");
+        }
+
+        if (trip.getStartDate() != null && trip.getEndDate() != null
+                && tripRepository.existsOverlappingTripForUserExcludingTrip(
+                        currentUser.getId(), tripId, trip.getStartDate(), trip.getEndDate())) {
+            throw new TripConflictException(
+                    TripConflictException.Code.OVERLAPPING_DATES,
+                    "You already have a trip during these dates");
         }
 
         trip = tripRepository.save(trip);
