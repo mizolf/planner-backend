@@ -3,7 +3,8 @@ package com.mcesnik.planner_backend.exception;
 public class TripConflictException extends RuntimeException {
 
     public enum Code {
-        OVERLAPPING_DATES
+        OVERLAPPING_DATES,
+        ITINERARY_NOT_EMPTY
     }
 
     private final Code code;

@@ -117,4 +117,10 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), "CONCURRENT_MODIFICATION", "Concurrent modification — please retry");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(AIGenerationException.class)
+    public ResponseEntity<ErrorResponse> handleAiGeneration(AIGenerationException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_GATEWAY.value(), "AI_GENERATION_FAILED", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(error);
+    }
 }
