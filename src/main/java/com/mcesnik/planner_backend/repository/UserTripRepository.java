@@ -15,6 +15,8 @@ public interface UserTripRepository extends JpaRepository<UserTrip, Long> {
     List<UserTrip> findByUserId(Long userId);
     @EntityGraph(attributePaths = "user")
     List<UserTrip> findByTripId(Long tripId);
+    @EntityGraph(attributePaths = "user")
+    List<UserTrip> findByTripIdIn(List<Long> tripIds);
     Optional<UserTrip> findByUserIdAndTripId(Long userId, Long tripId);
     boolean existsByUserIdAndTripId(Long userId, Long tripId);
     boolean existsByUserIdAndTripIdAndRole(Long userId, Long tripId, TripRole role);

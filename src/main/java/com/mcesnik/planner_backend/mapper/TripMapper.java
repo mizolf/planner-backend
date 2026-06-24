@@ -54,6 +54,7 @@ public class TripMapper {
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
                 .status(TripStatusCalculator.calculate(trip.getStartDate(), trip.getEndDate(), LocalDate.now()))
+                .visibility(trip.getVisibility())
                 .budget(trip.getBudget())
                 .interests(trip.getInterests())
                 .createdAt(trip.getCreatedAt())
@@ -72,6 +73,7 @@ public class TripMapper {
         response.setStartDate(trip.getStartDate());
         response.setEndDate(trip.getEndDate());
         response.setStatus(TripStatusCalculator.calculate(trip.getStartDate(), trip.getEndDate(), LocalDate.now()));
+        response.setVisibility(trip.getVisibility());
         response.setBudget(trip.getBudget());
         response.setInterests(trip.getInterests());
         response.setCreatedAt(trip.getCreatedAt());

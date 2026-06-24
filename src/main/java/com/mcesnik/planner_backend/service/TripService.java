@@ -1,7 +1,9 @@
 package com.mcesnik.planner_backend.service;
 
+import com.mcesnik.planner_backend.DTO.CloneTripDTO;
 import com.mcesnik.planner_backend.DTO.CreateTripDTO;
 import com.mcesnik.planner_backend.DTO.UpdateTripDTO;
+import com.mcesnik.planner_backend.DTO.UpdateTripVisibilityDTO;
 import com.mcesnik.planner_backend.event.ChangeDetector;
 import com.mcesnik.planner_backend.event.FieldChange;
 import com.mcesnik.planner_backend.event.TripEventRecorded;
@@ -13,7 +15,9 @@ import com.mcesnik.planner_backend.model.Activity;
 import com.mcesnik.planner_backend.model.Enums.TripEventEntityType;
 import com.mcesnik.planner_backend.model.Enums.TripEventType;
 import com.mcesnik.planner_backend.model.Enums.TripRole;
+import com.mcesnik.planner_backend.model.Enums.TripVisibility;
 import com.mcesnik.planner_backend.model.Trip;
+import com.mcesnik.planner_backend.model.TripDay;
 import com.mcesnik.planner_backend.model.User;
 import com.mcesnik.planner_backend.model.UserTrip;
 import com.mcesnik.planner_backend.repository.ActivityRepository;
@@ -21,6 +25,7 @@ import com.mcesnik.planner_backend.repository.TripDayRepository;
 import com.mcesnik.planner_backend.repository.TripRepository;
 import com.mcesnik.planner_backend.repository.UserTripRepository;
 import com.mcesnik.planner_backend.exception.InvalidDateRangeException;
+import com.mcesnik.planner_backend.exception.ResourceNotFoundException;
 import com.mcesnik.planner_backend.exception.TripConflictException;
 import com.mcesnik.planner_backend.responses.TripDetailResponse;
 import com.mcesnik.planner_backend.responses.TripResponse;
@@ -28,7 +33,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -178,5 +187,105 @@ public class TripService {
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
         tripRepository.delete(trip);
+    }
+
+    @Transactional
+    public TripResponse changeVisibility(Long tripId, UpdateTripVisibilityDTO request, User currentUser){
+        authorizationService.validateOwner(tripId, currentUser);
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
+
+        trip.setVisibility(request.getVisibility());
+        trip = tripRepository.save(trip);
+
+        return tripMapper.toResponse(trip);
+    }
+
+    @Transactional
+    public TripResponse cloneTrip(Long tripId, CloneTripDTO request, User currentUser){
+        Trip source = tripRepository.findById(tripId)
+                .filter(t -> t.getVisibility() == TripVisibility.PUBLIC)
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
+
+        LocalDate startDate = request.getStartDate();
+        long durationDays = ChronoUnit.DAYS.between(source.getStartDate(), source.getEndDate()) + 1;
+        LocalDate endDate = startDate.plusDays(durationDays - 1);
+
+        if (tripRepository.existsOverlappingTripForUser(currentUser.getId(), startDate, endDate)) {
+            throw new TripConflictException(
+                    TripConflictException.Code.OVERLAPPING_DATES,
+                    "You already have a trip during these dates");
+        }
+
+        Trip clone = Trip.builder()
+                .name(request.getName() != null ? request.getName() : source.getName())
+                .description(source.getDescription())
+                .destination(source.getDestination())
+                .latitude(source.getLatitude())
+                .longitude(source.getLongitude())
+                .startDate(startDate)
+                .endDate(endDate)
+                .interests(source.getInterests() == null
+                        ? new HashSet<>()
+                        : new HashSet<>(source.getInterests()))
+                .build();
+        // budget intentionally left null; visibility defaults to PRIVATE via @Builder.Default
+
+        List<TripDay> sourceDays = tripDayRepository.findByTripIdOrderByDayNumberAsc(tripId);
+        List<Long> dayIds = sourceDays.stream().map(TripDay::getId).toList();
+        Map<Long, List<Activity>> activitiesByDayId = dayIds.isEmpty()
+                ? Collections.emptyMap()
+                : activityRepository.findByTripDayIdInOrderByStartTimeAsc(dayIds).stream()
+                        .collect(Collectors.groupingBy(activity -> activity.getTripDay().getId()));
+
+        List<TripDay> newDays = new ArrayList<>();
+        int index = 0;
+        for (TripDay sourceDay : sourceDays) {
+            int dayNumber = sourceDay.getDayNumber() != null ? sourceDay.getDayNumber() : index + 1;
+            TripDay newDay = TripDay.builder()
+                    .dayNumber(dayNumber)
+                    .date(startDate.plusDays(dayNumber - 1))
+                    .title(sourceDay.getTitle())
+                    .notes(sourceDay.getNotes())
+                    .trip(clone)
+                    .build();
+
+            List<Activity> newActivities = new ArrayList<>();
+            for (Activity sourceAct : activitiesByDayId.getOrDefault(sourceDay.getId(), Collections.emptyList())) {
+                newActivities.add(Activity.builder()
+                        .name(sourceAct.getName())
+                        .description(sourceAct.getDescription())
+                        .location(sourceAct.getLocation())
+                        .latitude(sourceAct.getLatitude())
+                        .longitude(sourceAct.getLongitude())
+                        .startTime(sourceAct.getStartTime())
+                        .endTime(sourceAct.getEndTime())
+                        .category(sourceAct.getCategory())
+                        .tripDay(newDay)
+                        .build());
+                // cost intentionally left null
+            }
+            newDay.setActivities(newActivities);
+            newDays.add(newDay);
+            index++;
+        }
+        clone.setDays(newDays);
+
+        clone = tripRepository.save(clone);
+
+        UserTrip ownership = UserTrip.builder()
+                .user(currentUser)
+                .trip(clone)
+                .role(TripRole.OWNER)
+                .build();
+        userTripRepository.save(ownership);
+
+        eventPublisher.publishEvent(new TripEventRecorded(
+                clone, currentUser,
+                TripEventType.TRIP_CREATED, TripEventEntityType.TRIP,
+                clone.getId(), clone.getName(), null));
+
+        return tripMapper.toResponse(clone);
     }
 }

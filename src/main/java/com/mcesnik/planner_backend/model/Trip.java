@@ -1,6 +1,7 @@
 package com.mcesnik.planner_backend.model;
 
 import com.mcesnik.planner_backend.model.Enums.Interest;
+import com.mcesnik.planner_backend.model.Enums.TripVisibility;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -50,6 +51,11 @@ public class Trip {
     @Enumerated(EnumType.STRING)
     @Column(name = "interest")
     private Set<Interest> interests;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility", nullable = false)
+    @Builder.Default
+    private TripVisibility visibility = TripVisibility.PRIVATE;
 
     @CreationTimestamp
     private Instant createdAt;

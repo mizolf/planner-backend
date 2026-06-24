@@ -1,13 +1,10 @@
 package com.mcesnik.planner_backend.responses;
 
 import com.mcesnik.planner_backend.model.Enums.Interest;
-import com.mcesnik.planner_backend.model.Enums.TripStatus;
-import com.mcesnik.planner_backend.model.Enums.TripVisibility;
 import lombok.*;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -15,7 +12,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TripResponse {
+public class PublicTripDetailResponse {
     private Long id;
     private String name;
     private String description;
@@ -24,10 +21,9 @@ public class TripResponse {
     private Double longitude;
     private LocalDate startDate;
     private LocalDate endDate;
-    private TripStatus status;
-    private TripVisibility visibility;
-    private BigDecimal budget;
+    private long durationDays;
     private Set<Interest> interests;
-    private Instant createdAt;
-    private Instant updatedAt;
+    private String ownerDisplayName;
+    private int memberCount;
+    private List<PublicTripDayResponse> days;
 }
