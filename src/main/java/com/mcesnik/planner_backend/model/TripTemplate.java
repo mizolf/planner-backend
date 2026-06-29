@@ -29,6 +29,10 @@ public class TripTemplate {
 
     private String description;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @Column(nullable = false)
     private String destination;
 

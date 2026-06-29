@@ -26,6 +26,10 @@ public class TemplateActivity {
 
     private String location;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @Column(name = "start_time")
     private LocalTime startTime;
 

@@ -12,6 +12,8 @@ public record TripTemplateSeedData(
         String name,
         String description,
         String destination,
+        Double latitude,
+        Double longitude,
         Integer durationDays,
         Season recommendedSeason,
         String imageUrl,

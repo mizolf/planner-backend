@@ -9,6 +9,8 @@ public record TemplateActivitySeedData(
         String name,
         String description,
         String location,
+        Double latitude,
+        Double longitude,
         LocalTime startTime,
         LocalTime endTime,
         ActivityCategory category,
