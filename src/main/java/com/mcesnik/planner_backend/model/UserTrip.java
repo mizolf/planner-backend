@@ -35,4 +35,6 @@ public class UserTrip {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_id")
     private Trip trip;
+
+    private Long lastReadMessageId;
 }
