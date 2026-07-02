@@ -9,6 +9,7 @@ import com.mcesnik.planner_backend.mapper.TripMapper;
 import com.mcesnik.planner_backend.mapper.TripStyleMapper;
 import com.mcesnik.planner_backend.mapper.TripTemplateMapper;
 import com.mcesnik.planner_backend.model.Activity;
+import com.mcesnik.planner_backend.model.Enums.Interest;
 import com.mcesnik.planner_backend.model.Enums.TripEventEntityType;
 import com.mcesnik.planner_backend.model.Enums.TripEventType;
 import com.mcesnik.planner_backend.model.Enums.TripRole;
@@ -38,9 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +55,8 @@ public class TripTemplateService {
     private final TemplateActivityMapper activityMapper;
     private final TripMapper tripMapper;
     private final ApplicationEventPublisher eventPublisher;
+
+    private static final int RECOMMENDED_LIMIT = 6;
 
     @Transactional(readOnly = true)
     public List<TripStyleResponse> listStyles() {
@@ -104,6 +105,18 @@ public class TripTemplateService {
                 .toList();
 
         return templateMapper.toDetail(template, dayResponses);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FeaturedTemplateResponse> recommendTemplates(User user) {
+        Set<Interest> userInterests = user.getPreferredInterests();
+        return templateRepository.findAllOrderedWithStyle().stream()
+                .filter(t -> overlap(userInterests, t.getInterests()) > 0)
+                .sorted(Comparator.comparingInt(
+                        (TripTemplate t) -> overlap(userInterests, t.getInterests())).reversed())
+                .limit(RECOMMENDED_LIMIT)
+                .map(templateMapper::toFeatured)
+                .toList();
     }
 
     @Transactional
@@ -180,4 +193,18 @@ public class TripTemplateService {
 
         return tripMapper.toResponse(trip);
     }
+
+    private int overlap(Set<Interest> userInterests, Set<Interest> templateInterests) {
+        if (userInterests == null || templateInterests == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Interest interest : templateInterests) {
+            if (userInterests.contains(interest)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
 }

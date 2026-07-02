@@ -63,6 +63,11 @@ public class TripTemplateController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/recommended")
+    public ResponseEntity<List<FeaturedTemplateResponse>> getRecommendedTemplates() {
+        return ResponseEntity.ok(templateService.recommendTemplates(getCurrentUser()));
+    }
+
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
